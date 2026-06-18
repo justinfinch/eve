@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/main/.schema/devbox.schema.json",
+  "packages": [
+    "rustup@latest",
+    "nodejs@latest",
+    "probe-rs-tools@latest"
+  ],
+  "env": {},
+  "shell": {
+    "scripts": {}
+  }
+}
