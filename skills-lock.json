@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "arche-architect": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-architect/SKILL.md",
+      "computedHash": "b4b7b959907af0ac2e46678e313d15c5c36da9625101e97ebb9dc4763680dc7a"
+    },
+    "arche-discover": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-discover/SKILL.md",
+      "computedHash": "3a610f895280bf7f2885b80d44d290c5dfb4958fe854a4753db115f45cc3d485"
+    },
+    "arche-ingest": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-ingest/SKILL.md",
+      "computedHash": "49f22505d0dc16912c1e6501e8b95cf69a657e4200623478e88665a801c5e39d"
+    },
+    "arche-init": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-init/SKILL.md",
+      "computedHash": "86b8f507e69c57f4533efd525dc6a89eb87419d14efe84127947de90a9212294"
+    },
+    "arche-lint": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-lint/SKILL.md",
+      "computedHash": "1842dd2b60cc8e3837b06576e96ba2c099b602c0b17f5b9e2ed60f986be52f2d"
+    },
+    "arche-query": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-query/SKILL.md",
+      "computedHash": "6ab2c711ee8aad17fada2f7b0018a7686d6ab53db53678f2e45e0069afc40fe6"
+    },
+    "arche-tell": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-tell/SKILL.md",
+      "computedHash": "3d1669c5c651a4bd5130159e42cfde016be874110d776f196769461109fdec52"
+    },
+    "devbox-add": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/devbox-add/SKILL.md",
+      "computedHash": "0f209e8af5b96230cae1f4f990d2ba1c43e951c7f19802bf35eff23ec47a8377"
+    },
+    "devbox-init": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/devbox-init/SKILL.md",
+      "computedHash": "bc9f8f9d921c959e6499fc154fd739f4048b2183c3e52329fddc7c46a7e42317"
+    },
+    "write-a-skill": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/write-a-skill/SKILL.md",
+      "computedHash": "15486f38ad158e5d73b4e8b34dc92cb8e3f8c861f9f8e62132e8aec3efa7fee5"
+    }
+  }
+}

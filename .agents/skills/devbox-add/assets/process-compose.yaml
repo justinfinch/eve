@@ -1,0 +1,49 @@
+# process-compose.yaml — starter for devbox services without a built-in plugin.
+#
+# Devbox runs `devbox services up` against this file (merged with any plugin-provided
+# entries). Add one block per daemon. Set `working_dir` under .devbox/virtenv/<name>
+# so state stays repo-local and gets wiped with `devbox services rm`.
+#
+# Example: rabbitmq-server (no built-in plugin as of devbox 0.13)
+
+version: "0.5"
+
+processes:
+  rabbitmq:
+    command: rabbitmq-server
+    working_dir: .devbox/virtenv/rabbitmq
+    environment:
+      - RABBITMQ_NODE_PORT=5673          # +1 from default 5672
+      - RABBITMQ_MNESIA_BASE=.devbox/virtenv/rabbitmq/mnesia
+      - RABBITMQ_LOG_BASE=.devbox/virtenv/rabbitmq/log
+    readiness_probe:
+      exec:
+        command: rabbitmq-diagnostics -q ping
+      initial_delay_seconds: 5
+      period_seconds: 5
+    availability:
+      restart: on_failure
+
+  # elasticsearch:
+  #   command: elasticsearch
+  #   working_dir: .devbox/virtenv/elasticsearch
+  #   environment:
+  #     - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - http.port=9201                  # +1 from default 9200
+  #   readiness_probe:
+  #     http_get:
+  #       host: 127.0.0.1
+  #       port: 9201
+  #       path: /_cluster/health
+  #     initial_delay_seconds: 15
+  #     period_seconds: 5
+
+  # nats:
+  #   command: nats-server -p 4223        # +1 from default 4222
+  #   working_dir: .devbox/virtenv/nats
+  #   readiness_probe:
+  #     tcp_socket:
+  #       host: 127.0.0.1
+  #       port: 4223
