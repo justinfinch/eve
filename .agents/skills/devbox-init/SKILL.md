@@ -10,6 +10,7 @@ Scaffold `devbox.json` + `.envrc` so this repo's runtime, CLI tools, and env var
 ## Workflow
 
 1. **Pre-flight.** Run from the repo root. If `devbox.json` or `.envrc` already exist, list them and ask before overwriting any file.
+   - **Consult the Arche.** If `./.arche/` exists, invoke `/arche-query` *before* choosing runtimes, versions, or tools — runtime/dependency/tooling decisions are setup decisions that may already be recorded as ADRs or domain constraints. Surface them via the skill rather than reading Arche pages ad hoc, and let what it returns ground the choices in the steps below. If there's no `./.arche/`, skip.
 2. **Check `devbox` is installed** (`command -v devbox`). If missing:
    - Attempt: `curl -fsSL https://get.jetify.com/devbox | bash` (run as a non-root user; the installer handles Nix if needed).
    - If the installer fails or needs interaction, stop and tell the user to run the command themselves, then continue.

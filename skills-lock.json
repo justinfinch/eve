@@ -11,7 +11,7 @@
       "source": "justinfinch/skills",
       "sourceType": "github",
       "skillPath": "skills/arche-discover/SKILL.md",
-      "computedHash": "3a610f895280bf7f2885b80d44d290c5dfb4958fe854a4753db115f45cc3d485"
+      "computedHash": "92df666f5d61e3f61e299343714cf87591af8668877a9851f9f7ac49ab76acac"
     },
     "arche-ingest": {
       "source": "justinfinch/skills",
@@ -23,7 +23,7 @@
       "source": "justinfinch/skills",
       "sourceType": "github",
       "skillPath": "skills/arche-init/SKILL.md",
-      "computedHash": "86b8f507e69c57f4533efd525dc6a89eb87419d14efe84127947de90a9212294"
+      "computedHash": "798fb5b2e1205e7a684b73a7644b18477f3bb0d1dc786de300916d4de380a57a"
     },
     "arche-lint": {
       "source": "justinfinch/skills",
@@ -35,7 +35,13 @@
       "source": "justinfinch/skills",
       "sourceType": "github",
       "skillPath": "skills/arche-query/SKILL.md",
-      "computedHash": "6ab2c711ee8aad17fada2f7b0018a7686d6ab53db53678f2e45e0069afc40fe6"
+      "computedHash": "21b37741af3d56642f580a09457b9750affd8836aa1a7cef44fc6e34c79df5b1"
+    },
+    "arche-specify": {
+      "source": "justinfinch/skills",
+      "sourceType": "github",
+      "skillPath": "skills/arche-specify/SKILL.md",
+      "computedHash": "1b6d1873582216e2db2832d47d098afad51e3958640950492d540075fcfddb9d"
     },
     "arche-tell": {
       "source": "justinfinch/skills",
@@ -53,7 +59,7 @@
       "source": "justinfinch/skills",
       "sourceType": "github",
       "skillPath": "skills/devbox-init/SKILL.md",
-      "computedHash": "bc9f8f9d921c959e6499fc154fd739f4048b2183c3e52329fddc7c46a7e42317"
+      "computedHash": "0d7d555e94371d191005c5e84dea0ce0f2fb223411457ffed5bef41f8eb28c28"
     },
     "write-a-skill": {
       "source": "justinfinch/skills",

@@ -20,6 +20,10 @@ _None yet._
 
 _None yet._
 
+## Specs
+
+_None yet. Run `/arche-specify` to specify a feature (WHAT/WHY) grounded in the Arche._
+
 ## Queries
 
 _None yet._
