@@ -29,6 +29,15 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 - [Automated Remote Bring-Up](concepts/automated-remote-bring-up.md) — the genuinely unsolved white space: end-to-end remote test. `white-space` `remote-test`
 - [POC: Mini-Molecule + Cloud Workbench](concepts/poc-mini-molecule-cloud-workbench.md) — recommended desk-scale POC (Concepts A–D) mirroring Adom's stack. `poc` `interview-prep`
 - [Learning Hardware as a Software Dev](concepts/learning-hardware-as-a-software-dev.md) — the POC's real deliverable is hardware literacy, not a working rig: intuition traps, the misattribution meta-skill, a learning-sequenced ladder. `poc` `hardware-literacy` `software-dev`
+- [ARD — Mini-Molecule POC](concepts/ard-mini-molecule-poc.md) — software requirements for the POC: dual success metric (works + Adom-faithful), five pillars, quality-attribute scenarios. `architecture` `ard` `poc`
+- [SAD — Mini-Molecule POC](concepts/sad-mini-molecule-poc.md) — software solution: transport-agnostic 4-layer control plane, contract-as-invariant seam, simulator-as-peer, AI planner, fitness functions. `architecture` `sad` `poc`
+- [ADR — Phased control plane](concepts/adr-phased-control-plane.md) — Web Serial v1 → Rust bridge v2; the message contract is the invariant, not the topology. `architecture` `adr` `poc`
+- [ADR — Message contract via tsify](concepts/adr-message-contract-tsify.md) — Rust serde types → TS via tsify (single source of truth); JSON v1 / postcard-rpc v2 at the embedded seam. `architecture` `adr` `poc`
+- [ADR — Capability registry](concepts/adr-capability-registry.md) — self-describing capability model; browser UI renders from the capability list. `architecture` `adr` `poc`
+- [ADR — Firmware Rust + Embassy](concepts/adr-firmware-rust-embassy.md) — Rust + Embassy on RP2350; fidelity over ramp-cost, consciously. `architecture` `adr` `poc`
+- [ADR — Device simulator](concepts/adr-device-simulator.md) — protocol-level Rust simulator sharing the contract; CI, hardware-free dev, AI sandbox. `architecture` `adr` `poc`
+- [ADR — AI constrained planner](concepts/adr-ai-constrained-planner.md) — AI emits a capability-schema'd, validated, sim-first test plan; never a raw actuator. `architecture` `adr` `poc`
+- [ADR — Reproducible run artifacts](concepts/adr-reproducible-run-artifacts.md) — immutable run artifacts, replayable against the simulator. `architecture` `adr` `poc`
 
 ## Queries
 

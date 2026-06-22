@@ -3,7 +3,7 @@ type: concept
 title: "POC: Mini-Molecule + Cloud Workbench"
 created: 2026-06-17
 updated: 2026-06-22
-tags: [poc, interview-prep, mini-molecule, rust, embassy, can, web-serial, ai-layer]
+tags: [poc, interview-prep, mini-molecule, rust, embassy, can, web-serial, ai-layer, architecture]
 sources: [sources/adom-decoded-and-poc-plan.md, discoveries/poc-unknown-unknowns.md, concepts/learning-hardware-as-a-software-dev.md]
 ---
 
@@ -38,6 +38,8 @@ A [discovery session](../discoveries/poc-unknown-unknowns.md) reframed the deliv
 
 ## See also
 
+- [ARD — Mini-Molecule POC](ard-mini-molecule-poc.md) — software requirements formalized from this concept.
+- [SAD — Mini-Molecule POC](sad-mini-molecule-poc.md) — the software solution architecture (+ 7 ADRs) designed against the ARD.
 - [Learning Hardware as a Software Dev](learning-hardware-as-a-software-dev.md)
 - [POC Unknown-Unknowns discovery](../discoveries/poc-unknown-unknowns.md)
 - [Adom Technical Architecture](adom-technical-architecture.md)
