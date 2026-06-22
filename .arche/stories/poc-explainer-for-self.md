@@ -4,6 +4,7 @@ title: "What the POC Builds — A Visual Explainer"
 created: 2026-06-17
 updated: 2026-06-22
 tags: [poc, explainer, mini-molecule, interview-prep, visual]
+companion: stories/poc-hardware-manual-for-self.md
 sources: [concepts/poc-mini-molecule-cloud-workbench.md, concepts/adom-technical-architecture.md, concepts/programmable-wiring.md, concepts/automated-remote-bring-up.md, concepts/molecules-and-workcells.md, sources/adom-decoded-and-poc-plan.md, entities/adom-industries.md, entities/john-lauer.md]
 audience: Justin (self) — understanding the POC before building / interviewing
 audience_depth: internal
@@ -71,6 +72,7 @@ After reading: be able to sketch the end-to-end path from memory and say, for ea
 
 ## See also
 
+- **Companion (hardware build):** [POC Hardware Manual — Build It, Understand It](./poc-hardware-manual-for-self.md) — this story covers *what* the POC builds; the manual is the *how-to-build-and-understand-the-hardware* counterpart (per-part reference, arrival ritual, rungs 0–6, diagnosis playbook). Keep the facts in sync when either is re-rendered.
 - **Companion:** `/README.md` at the repo root shares this story's structure but is written in an **external resume voice** (first-person, addressed to an Adom reviewer), whereas this story is internal/self-facing. Keep the *facts* in sync when re-rendering; do **not** flatten the README's voice back to this one.
 - [POC: Mini-Molecule + Cloud Workbench](../concepts/poc-mini-molecule-cloud-workbench.md)
 - [Adom Technical Architecture](../concepts/adom-technical-architecture.md)

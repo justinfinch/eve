@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POC Hardware Manual — Build It, Understand It</title>
+<style>
+  :root {
+    --bg: #16130e;
+    --surface: #201b13;
+    --surface-2: #2a2319;
+    --ink: #f2ece0;
+    --ink-dim: #b8ac98;
+    --ink-faint: #8a7f6c;
+    --rule: #3a3024;
+    --accent: #f0a431;
+    --accent-soft: #f0a43122;
+    --accent-ink: #f7c873;
+    --danger: #e8704a;
+    --danger-soft: #e8704a1f;
+    --ok: #6cbf72;
+    --code-bg: #120f0a;
+    --maxw: 78ch;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #faf6ee;
+      --surface: #fffdf8;
+      --surface-2: #f3ecdd;
+      --ink: #20180c;
+      --ink-dim: #5c5142;
+      --ink-faint: #877c69;
+      --rule: #e2d8c4;
+      --accent: #b9740a;
+      --accent-soft: #b9740a14;
+      --accent-ink: #95590a;
+      --danger: #c0492a;
+      --danger-soft: #c0492a14;
+      --ok: #3f8a45;
+      --code-bg: #2a2318;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 1.4rem 6rem; }
+
+  /* ---- Hero ---- */
+  header.hero {
+    border-bottom: 1px solid var(--rule);
+    padding: 4.5rem 0 2.4rem;
+    margin-bottom: 2.5rem;
+  }
+  .tag {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+  h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0.6rem 0 0.8rem;
+  }
+  .subtitle { font-size: 1.18rem; color: var(--ink-dim); max-width: 60ch; margin: 0; }
+  .meta-block {
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    color: var(--ink-dim);
+    margin-top: 1.8rem;
+    border-left: 3px solid var(--accent);
+    padding: 0.4rem 0 0.4rem 1.1rem;
+    background: var(--accent-soft);
+    border-radius: 0 6px 6px 0;
+  }
+  .meta-block b { color: var(--ink); }
+  .meta-block p { margin: 0.35rem 0; }
+
+  /* ---- Typography ---- */
+  h2 {
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: 1.7rem;
+    margin: 3.4rem 0 0.4rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  h2 .num {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    margin-right: 0.5rem;
+  }
+  h3 {
+    font-family: var(--sans);
+    font-weight: 650;
+    font-size: 1.16rem;
+    letter-spacing: -0.005em;
+    margin: 2.4rem 0 0.3rem;
+    color: var(--accent-ink);
+  }
+  h3 .rung {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    background: var(--accent);
+    color: #1a1206;
+    border-radius: 5px;
+    padding: 0.05em 0.5em;
+    margin-right: 0.55em;
+    vertical-align: 0.12em;
+    font-weight: 700;
+  }
+  p { margin: 0.9rem 0; }
+  a { color: var(--accent-ink); text-decoration: none; border-bottom: 1px solid var(--rule); }
+  a:hover { border-color: var(--accent); }
+  strong { color: var(--ink); font-weight: 650; }
+  em { color: var(--ink-dim); }
+  code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--surface-2);
+    padding: 0.08em 0.36em;
+    border-radius: 4px;
+    color: var(--accent-ink);
+  }
+  del { color: var(--ink-faint); }
+
+  .lead { font-size: 1.12rem; color: var(--ink-dim); }
+
+  /* ---- Callouts ---- */
+  .rule-callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    margin: 1.6rem 0;
+  }
+  .rule-callout .label {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-weight: 700;
+  }
+  .warn {
+    background: var(--danger-soft);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-family: var(--sans);
+    font-size: 0.96rem;
+  }
+  .warn .label { color: var(--danger); font-weight: 700; letter-spacing: 0.04em; }
+  .derived {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    color: var(--ink-dim);
+    background: var(--surface);
+    border: 1px dashed var(--rule);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin: 1.4rem 0;
+  }
+  .derived b { color: var(--accent-ink); }
+
+  /* ---- Trap cards ---- */
+  .traps { display: grid; gap: 1rem; grid-template-columns: 1fr; margin: 1.6rem 0; }
+  @media (min-width: 720px) { .traps { grid-template-columns: repeat(3, 1fr); } }
+  .trap {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--danger);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    font-family: var(--sans);
+  }
+  .trap .n { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); font-weight: 700; }
+  .trap .belief { font-size: 0.95rem; color: var(--ink-faint); margin: 0.4rem 0 0.2rem; }
+  .trap .belief del { font-style: italic; }
+  .trap .reality { font-size: 0.97rem; color: var(--ink); }
+  .transfers {
+    background: var(--surface);
+    border: 1px solid var(--ok);
+    border-left: 4px solid var(--ok);
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    margin: 1.3rem 0;
+    font-family: var(--sans);
+    font-size: 0.96rem;
+  }
+  .transfers b { color: var(--ok); }
+
+  /* ---- Part reference cards ---- */
+  .section-sub { font-family: var(--sans); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); font-weight: 700; margin: 2rem 0 0.6rem; }
+  .parts { display: grid; gap: 0.9rem; grid-template-columns: 1fr; margin: 1rem 0; }
+  @media (min-width: 640px) { .parts { grid-template-columns: 1fr 1fr; } }
+  .part {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 0.95rem 1.05rem;
+    font-family: var(--sans);
+    font-size: 0.9rem;
+  }
+  .part.tool { border-left: 3px solid var(--accent); }
+  .part h4 { margin: 0 0 0.15rem; font-size: 1rem; color: var(--ink); letter-spacing: -0.01em; }
+  .part .asin { font-family: var(--mono); font-size: 0.74rem; color: var(--ink-faint); }
+  .part .role { color: var(--ink-dim); margin: 0.4rem 0; }
+  .part dl { margin: 0.5rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.6rem; font-size: 0.84rem; }
+  .part dt { color: var(--ink-faint); font-weight: 600; }
+  .part dd { margin: 0; color: var(--ink); }
+  .part dd.gotcha { color: var(--accent-ink); }
+
+  /* ---- Ladder ---- */
+  .ladder { margin: 1.6rem 0; border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+  .ladder .step {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    align-items: stretch;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--sans);
+  }
+  .ladder .step:last-child { border-bottom: none; }
+  .ladder .step .lvl {
+    background: var(--surface-2);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem;
+  }
+  .ladder .step:nth-child(odd) .lvl { background: var(--surface); }
+  .ladder .step .body { padding: 0.7rem 1rem; }
+  .ladder .step .what { font-weight: 650; color: var(--ink); font-size: 0.96rem; }
+  .ladder .step .concept { color: var(--ink-dim); font-size: 0.86rem; }
+  .ladder .step .cap { font-family: var(--mono); font-size: 0.74rem; color: var(--accent-ink); }
+  .ladder .step.big .lvl { background: var(--danger); color: #fff; }
+
+  /* ---- Pre / code blocks ---- */
+  pre.ascii, pre.code {
+    background: var(--code-bg);
+    color: #e8dcc4;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin: 1.1rem 0;
+  }
+  pre.ascii .cap, .fig-cap {
+    font-family: var(--sans);
+  }
+  .fig-cap { font-size: 0.82rem; color: var(--ink-faint); margin: 0.3rem 0 1.4rem; font-style: italic; }
+
+  .verify {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    border-left: 3px solid var(--ok);
+    padding: 0.2rem 0 0.2rem 1rem;
+    margin: 1rem 0;
+    color: var(--ink-dim);
+  }
+  .verify b { color: var(--ok); }
+  .writeup {
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    border-left: 3px solid var(--accent);
+    padding: 0.2rem 0 0.2rem 1rem;
+    margin: 1rem 0;
+    color: var(--ink-dim);
+  }
+  .writeup b { color: var(--accent-ink); }
+
+  /* ---- Mermaid ---- */
+  .mermaid {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin: 1.4rem 0;
+    text-align: center;
+    overflow-x: auto;
+  }
+
+  svg.topology { width: 100%; height: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; margin: 1.2rem 0; }
+
+  /* ---- Closing ask ---- */
+  .ask {
+    background: var(--accent-soft);
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 1.6rem 1.8rem;
+    margin: 2.5rem 0 1rem;
+  }
+  .ask .label { font-family: var(--sans); font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-ink); font-weight: 700; }
+  .ask p { font-size: 1.12rem; color: var(--ink); margin: 0.5rem 0 0; }
+
+  footer {
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+    font-family: var(--sans); font-size: 0.86rem; color: var(--ink-faint);
+  }
+  footer a { color: var(--ink-dim); }
+  footer ul { padding-left: 1.1rem; }
+  footer li { margin: 0.25rem 0; }
+
+  ul.tight { font-family: var(--sans); font-size: 0.96rem; }
+  ul.tight li { margin: 0.4rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="tag">Hardware manual · for self · 2026-06-22</div>
+    <h1>Build It, Understand It</h1>
+    <p class="subtitle">A bench manual for assembling the Mini-Molecule (Concept A) hardware — and, more importantly, for understanding every part well enough to explain it.</p>
+    <div class="meta-block">
+      <p><b>Audience.</b> You, the hands-on builder. You write the software; this is the hardware half.</p>
+      <p><b>The ask.</b> Build rung-by-rung; for each rung, write the "what's happening in the silicon" note. Success = you can <i>explain</i> it, not that the demo passes.</p>
+      <p><b>The one rule.</b> When it breaks, suspect the physical layer first.</p>
+    </div>
+  </header>
+
+  <!-- 0 -->
+  <h2 id="orientation"><span class="num">0</span>Orientation</h2>
+  <p class="lead">You are building <strong>Concept A — the Mini-Molecule + Cloud Workbench</strong>: a small board that self-identifies on a bus and is driven from a browser, reading a sensor and driving an actuator, end to end. You will write the software with skills you already have. This manual is the other half: the physical build, and the understanding.</p>
+
+  <div class="rule-callout">
+    <div class="label">The answer, stated first</div>
+    <p style="margin:0.5rem 0 0">The deliverable is <strong>hardware literacy, not a working rig</strong>. A live bus you can't explain is worth less than a humbler one you deeply understand. So every rung ends the same way: <strong>write down what's actually happening in the silicon.</strong> That write-up <em>is</em> the deliverable — the repo is a textbook you author by building.</p>
+  </div>
+
+  <p>And the corollary that governs all debugging: <strong>when something breaks, suspect the physical layer first.</strong> In hardware, physical failures masquerade as software bugs — a crystal mismatch reads as a "CAN bug," static damage reads as "flaky firmware," a cold contact reads as a "code bug." The whole manual is built to make the physical layer observable so you stop blaming code.</p>
+
+  <!-- 1 -->
+  <h2 id="model"><span class="num">1</span>The mental model</h2>
+  <p>Three mental models you carry as a software dev are silently false in hardware. Internalize these before you wire anything.</p>
+
+  <div class="traps">
+    <div class="trap">
+      <div class="n">Trap 1</div>
+      <div class="belief"><del>Errors are catchable.</del></div>
+      <div class="reality">Hardware has no <code>try/catch</code>. A wrong value is current going where it shouldn't — physical, permanent. No <code>git reset</code>. <strong>Measure before you connect.</strong></div>
+    </div>
+    <div class="trap">
+      <div class="n">Trap 2</div>
+      <div class="belief"><del>It compiled, so it's right.</del></div>
+      <div class="reality">Clean firmware still returns garbage from a cold contact, wrong SPI mode (CPOL/CPHA), a byte-order flip, an unconnected MISO. "Code is correct" → go to the <strong>physical</strong> layer.</div>
+    </div>
+    <div class="trap">
+      <div class="n">Trap 3</div>
+      <div class="belief"><del>State lives in variables.</del></div>
+      <div class="reality">A floating GPIO reads noise — no default <code>0</code>. Config registers persist <em>inside</em> the chip across re-flashes. Caps and rails carry state. The twin of "initialize your variables": pull resistors, register config, decoupling.</div>
+    </div>
+  </div>
+
+  <div class="transfers">
+    <b>What transfers:</b> not every instinct betrays you — <strong>"fail fast on the riskiest assumption" is correct</strong>, and it's exactly why CAN moves early (rung 2).
+  </div>
+
+  <p><strong>The meta-skill — misattribution.</strong> The single deepest pattern: physical failures wear software costumes. Learning to <em>suspect the physical layer first</em> is the literacy this whole POC is training.</p>
+
+  <!-- 2 -->
+  <h2 id="parts"><span class="num">2</span>Know your parts</h2>
+  <p>Vetted SKUs (Amazon, 2026-06-22 — ASINs are stable, prices/listings drift). Each card lists the <strong>chip marking to verify under a loupe</strong>, because <em>the listing lies, the silkscreen half-lies, the chip tells the truth</em>.</p>
+
+  <div class="section-sub">Build parts</div>
+  <div class="parts">
+    <div class="part">
+      <h4>Raspberry Pi Pico 2 W</h4>
+      <div class="asin">RP2350 · B0DP54FWX1 · ~$5–6</div>
+      <p class="role">The molecule's brain. Rust + Embassy firmware mirrors Adom's stack.</p>
+      <dl>
+        <dt>Verify</dt><dd>genuine RP2350, not relabeled RP2040</dd>
+        <dt>Voltage</dt><dd>3.3V logic</dd>
+        <dt class="gotcha">Gotcha</dt><dd class="gotcha">onboard LED is behind the CYW43 chip → use an external LED; GP23/24/25/29 reserved</dd>
+      </dl>
+    </div>
+    <div class="part">
+      <h4>MCP2515 CAN module ×2</h4>
+      <div class="asin">w/ TJA1050 · B01D0WSEWU · ~$7–10/pr</div>
+      <p class="role">The CAN bus — mirrors Adom's CAN-FD bus.</p>
+      <dl>
+        <dt>Verify</dt><dd>transceiver is TJA1050; <strong>read both crystal cans (8 vs 16 MHz), tape-label</strong></dd>
+        <dt>Voltage</dt><dd>TJA1050 wants 5V; logic 3.3V</dd>
+        <dt class="gotcha">Gotcha</dt><dd class="gotcha">5V/3.3V MISO seam + crystal lottery (rung 2)</dd>
+      </dl>
+    </div>
+    <div class="part">
+      <h4>ADS1220 24-bit ADC</h4>
+      <div class="asin">B0DPMKMGNN · ~$10–15</div>
+      <p class="role">Precision delta-sigma ADC — mirrors Adom's <code>ads1220</code>.</p>
+      <dl>
+        <dt>Verify</dt><dd>it's <strong>SPI</strong> (listings mislabel "I2C")</dd>
+        <dt>Voltage</dt><dd>3.3V</dd>
+        <dt class="gotcha">Gotcha</dt><dd class="gotcha">onboard IDAC for ratiometric thermistor reads</dd>
+      </dl>
+    </div>
+    <div class="part">
+      <h4>4-ch BSS138 level shifter</h4>
+      <div class="asin">B0DLG9J81H · ~$2</div>
+      <p class="role">Translates 5V ↔ 3.3V on SPI (esp. MISO).</p>
+      <dl>
+        <dt>Test</dt><dd>meter-only — apply 3.3V one side, measure other</dd>
+        <dt class="gotcha">Gotcha</dt><dd class="gotcha">passive MOSFET — slows rising edges → run SPI clock ~1–4 MHz</dd>
+      </dl>
+    </div>
+    <div class="part">
+      <h4>37-values grab bag (480 pcs)</h4>
+      <div class="asin">B099MQV8ZW · ~$13</div>
+      <p class="role">Component-under-test supply.</p>
+      <dl>
+        <dt>Has</dt><dd>pot, NTC thermistor, 2N2222, 1N4007, caps, breadboard, power module</dd>
+      </dl>
+    </div>
+    <div class="part">
+      <h4>DC motors ×6 (3–12V)</h4>
+      <div class="asin">B0922N8MCR · ~$8</div>
+      <p class="role">PWM actuation target.</p>
+      <dl>
+        <dt class="gotcha">Gotcha</dt><dd class="gotcha">never from a GPIO — transistor + flyback + 5V rail (rung 5)</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="section-sub">Learning tools — make the invisible layer observable</div>
+  <div class="parts">
+    <div class="part tool">
+      <h4>USB logic analyzer (8-ch)</h4>
+      <div class="asin">24 MHz · B077LSG5P2 · ~$10</div>
+      <p class="role">Watch SPI/CAN bits on the wire with PulseView (sigrok). Non-negotiable once CAN starts — its failures are otherwise invisible.</p>
+    </div>
+    <div class="part tool">
+      <h4>★ Golden Reference Node</h4>
+      <div class="asin">Waveshare RP2350-CAN · B0F4JH65HY · ~$18</div>
+      <p class="role">One known-good all-in-one. Build the <em>other</em> CAN node from parts; swap this in to bisect "my wiring+firmware" vs "the bus." 3.3V-native, crystal pre-matched. <strong>USB-C.</strong></p>
+    </div>
+    <div class="part tool">
+      <h4>USB power meter (V/A)</h4>
+      <div class="asin">B07FMQZVW2 · ~$14</div>
+      <p class="role">Pre-code vital sign: near-zero = nothing running; high+hot = backwards/shorted → cut power. The "smoke" in smoke test, quantified.</p>
+    </div>
+    <div class="part tool">
+      <h4>ESD wrist strap (1 MΩ)</h4>
+      <div class="asin">B00B2T9C8Y · ~$8</div>
+      <p class="role">Static causes <em>latent</em> damage — works today, flaky next week — you'll blame on firmware. Nearly-free insurance.</p>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <h2 id="dayone"><span class="num">3</span>Day one — the arrival → bring-up ritual</h2>
+  <p>There is <strong>no <code>package-lock.json</code> for atoms</strong> — no hash guarantees you got the right bytes. Every part is guilty until proven innocent: clones, mislabels, wrong crystals, DOA, missing SMD. Treat the box landing as <em>ready to audit</em>, not <em>ready to build</em>.</p>
+
+  <ul class="tight">
+    <li><strong>1 · Audit before assembly.</strong> ESD strap on first. Decode chip top-markings vs the datasheet (ADS1220 is ADS1220; Pico is genuine RP2350; transceiver is TJA1050). <strong>Read both MCP2515 crystal cans and tape-label them</strong> — a 30-second step that pre-empts the entire "CAN bug" spiral. Visual-check pins, bridges, cold joints.</li>
+    <li><strong>2 · Smoke-test each part in isolation.</strong> Power it alone, watch the power meter, feel/smell for heat. Verify against <em>math</em>, not an instrument you also don't trust. Use the chips' own self-tests (MCP2515 LOOPBACK; register write-then-read-back). Passive parts test with a meter only.</li>
+    <li><strong>3 · Integrate one variable at a time</strong> — so any failure is unambiguously the one thing you just added. Binary search, applied to atoms.</li>
+  </ul>
+
+  <div class="mermaid">
+flowchart TD
+  A([Box arrives]) --> B{ESD strap on?}
+  B -->|no| B1[Put it on first]
+  B1 --> C
+  B -->|yes| C[AUDIT: decode chip markings vs datasheet]
+  C --> D[Read both MCP2515 crystal cans, tape-label]
+  D --> E[Visual: bent pins / bridges / cold joints]
+  E --> F[SMOKE TEST each part alone]
+  F --> G{Power meter}
+  G -->|hot / shorted| G1[Cut power: chip backwards or dead]
+  G -->|normal| H[Self-test: LOOPBACK / register read-back / math check]
+  H --> I{Passes in isolation?}
+  I -->|no| I1[Fix this part before it contaminates a multi-part debug]
+  I -->|yes| J[INTEGRATE one variable at a time]
+  J --> K([Any failure = the one thing you just added])
+  </div>
+  <p class="fig-cap">The receiving-inspection discipline. The box is ready to audit, not ready to build.</p>
+
+  <!-- 4 -->
+  <h2 id="ladder"><span class="num">4</span>The build ladder — rungs 0–6</h2>
+  <p>Learning order ≠ feature order. This ladder is re-ordered by <strong>hardware-concept difficulty and blast radius</strong> — same modules, same parts, not a divergence from the concept. Three disciplines make it a <em>learning</em> ladder: build the instrument (rung 1) before the experiments; keep self-ID as the spine every rung extends; and bloody yourself on CAN early.</p>
+
+  <div class="ladder">
+    <div class="step"><div class="lvl">0</div><div class="body"><span class="what">Power + external LED + multimeter</span><div class="concept">GPIO, current-limit resistor, 3.3V logic, the meter as debugger</div><span class="cap">capabilities: []</span></div></div>
+    <div class="step"><div class="lvl">1</div><div class="body"><span class="what">Browser↔device loop (Web Serial) + self-ID</span><div class="concept">serialization, host↔device boundary, capability announcement</div><span class="cap">capabilities: [gpio]</span></div></div>
+    <div class="step big"><div class="lvl">2</div><div class="body"><span class="what">2-node CAN (reference + hand-built) ⚠</span><div class="concept">bus arbitration, differential signaling, bit-timing — the highest-gotcha rung</div><span class="cap">capabilities: [gpio] · over-CAN</span></div></div>
+    <div class="step"><div class="lvl">3</div><div class="body"><span class="what">Pot via the Pico's built-in ADC</span><div class="concept">analog↔digital, resolution, ref voltage — validates the loop at ~zero risk</div><span class="cap">capabilities: [gpio, adc]</span></div></div>
+    <div class="step"><div class="lvl">4</div><div class="body"><span class="what">Same pot via ADS1220 over SPI</span><div class="concept">SPI (CPOL/CPHA), register config, 24-bit delta-sigma, PGA</div><span class="cap">capabilities: [gpio, adc] (precise)</span></div></div>
+    <div class="step"><div class="lvl">5</div><div class="body"><span class="what">PWM a motor/fan via transistor + flyback</span><div class="concept">PWM, current, transistors, power rails, back-EMF</div><span class="cap">capabilities: [gpio, adc, pwm]</span></div></div>
+    <div class="step"><div class="lvl">6</div><div class="body"><span class="what">AI layer + shareable permalink</span><div class="concept">NL→test-plan, reproducibility — pure software, layered last</div><span class="cap">capabilities: [gpio, adc, pwm] + AI</span></div></div>
+  </div>
+
+  <div class="derived"><b>⚙ Pin assignments below are derived</b> from the Pico 2 pinout + chosen modules, <b>not</b> from the Arche — verify on the bench. The Arche fixes only: external LED on GP15, safe range GP10–GP21, avoid GP23/24/25/29 on the W.</div>
+
+  <h3><span class="rung">RUNG 0</span>Power, external LED, multimeter</h3>
+  <p><strong>New concept:</strong> GPIO, current-limit resistor, 3.3V logic, the meter as debugger. Safest first contact.</p>
+<pre class="ascii">Pico GP15 ──[ 330&#937; ]──&gt;|── GND     (anode &gt; resistor &gt; GP15; cathode &gt; GND)
+                        LED</pre>
+  <p><strong>What's happening in the silicon:</strong> GP15 is a push-pull output — driven high it sources ~3.3V; the 330Ω limits current to ~(3.3−1.8)/330 ≈ 4.5 mA so neither the LED nor the GPIO pad burns. The onboard LED won't work here (it's behind the CYW43 chip on the W) — which is <em>why</em> you use an external one.</p>
+  <p class="verify"><b>Verify:</b> measure GP15 toggling 0V↔3.3V with the multimeter before connecting; measure across the resistor for current direction.</p>
+  <p class="writeup"><b>Write-up:</b> why a current-limit resistor exists and what happens without it.</p>
+
+  <h3><span class="rung">RUNG 1</span>Browser↔device loop + self-ID <code>[gpio]</code></h3>
+  <p><strong>New concept:</strong> serialization, the host↔device boundary, capability announcement. A software dev's home turf — build the <em>instrument</em> first.</p>
+  <p><strong>Wiring:</strong> none beyond rung 0 — uses the Pico's native USB. Browser → Web Serial API → Pico directly (Chrome-only), the browser-to-serial pattern John Lauer pioneered.</p>
+  <p><strong>What's happening:</strong> on power-up the firmware announces <code>{id, name, capabilities:["gpio"]}</code> over USB-CDC serial; the browser parses it and renders an LED control. This is the molecule's self-ID spine — every later rung <em>appends</em> a capability.</p>
+  <p class="verify"><b>Verify:</b> toggle the LED from the browser; confirm the capability string round-trips.</p>
+  <p class="writeup"><b>Write-up:</b> where the host↔device boundary sits and how a capability list makes the board plug-and-play.</p>
+
+  <h3><span class="rung">RUNG 2</span>2-node CAN — the big one</h3>
+  <p><strong>New concept:</strong> bus arbitration, differential signaling, bit-timing. "Bloody me early" on the highest-gotcha, Adom-signature tech. Two gotchas straight from the BOM build note:</p>
+
+  <div class="warn">
+    <span class="label">⚠ Gotcha (a) — Crystal frequency.</span> Cheap MCP2515 modules ship 8 MHz <em>or</em> 16 MHz, by batch. The firmware bit-timing config <strong>must</strong> match the actual crystal or the bus never syncs. You already read &amp; labelled the cans in §3 — set the firmware constant to match. <em>A mismatch reads as a "CAN bug" for hours — the #1 misattribution trap.</em>
+  </div>
+  <div class="warn">
+    <span class="label">⚠ Gotcha (b) — the 5V/3.3V MISO seam.</span> The TJA1050 wants 5V; the Pico is 3.3V. SPI is 4-wire — the Pico drives SCK/MOSI/CS (safe), but <strong>MISO is driven by the module</strong>, so a 5V-powered module can push 5V into a Pico GPIO and damage it over time. Simplest-first: run the module at 3.3V (fine on a short bench bus); or put the BSS138 on MISO; or board-mod to feed only the TJA1050 5V.
+  </div>
+
+  <p><strong>Wiring — SPI from Pico to its MCP2515 (⚙ derived):</strong></p>
+<pre class="ascii">Pico            MCP2515 module
+GP18 (SCK)  ─── SCK
+GP19 (MOSI) ─── SI
+GP16 (MISO) ─── SO     &lt;── route through BSS138 if module is 5V-powered
+GP17 (CS)   ─── CS
+GP21 (INT)  ─── INT
+3V3 / 5V    ─── VCC    (see seam note above)
+GND         ─── GND</pre>
+
+  <p><strong>The CAN bus between the two nodes</strong> — differential pair + termination at both ends, rendered below.</p>
+
+  <svg class="topology" viewBox="0 0 760 280" role="img" aria-label="Two-node CAN bus topology: a hand-built node and a Waveshare reference node connected by a CANH/CANL differential pair, with 120 ohm termination at both ends and the SPI 5V/3.3V seam highlighted on the hand-built node.">
+    <style>
+      .box{fill:#201b13;stroke:#3a3024;stroke-width:1.5;}
+      .lbl{fill:#f2ece0;font-family:ui-sans-serif,system-ui,sans-serif;font-size:13px;font-weight:600;}
+      .sub{fill:#b8ac98;font-family:ui-sans-serif,system-ui,sans-serif;font-size:10.5px;}
+      .canh{stroke:#f0a431;stroke-width:3;fill:none;}
+      .canl{stroke:#6cbf72;stroke-width:3;fill:none;}
+      .term{fill:none;stroke:#b8ac98;stroke-width:2;}
+      .termlbl{fill:#b8ac98;font-family:ui-monospace,monospace;font-size:11px;}
+      .seam{fill:#e8704a;font-family:ui-sans-serif,system-ui,sans-serif;font-size:10px;font-weight:700;}
+      .pin{fill:#f0a431;font-family:ui-monospace,monospace;font-size:11px;}
+    </style>
+    <!-- Node A -->
+    <rect class="box" x="20" y="60" width="200" height="120" rx="10"/>
+    <text class="lbl" x="120" y="84" text-anchor="middle">Node A — hand-built</text>
+    <text class="sub" x="120" y="102" text-anchor="middle">Pico 2 W + MCP2515 + TJA1050</text>
+    <text class="seam" x="120" y="128" text-anchor="middle">⚠ SPI seam: MISO 5V→3.3V</text>
+    <text class="seam" x="120" y="144" text-anchor="middle">⚠ crystal must match firmware</text>
+    <text class="pin" x="120" y="166" text-anchor="middle">CANH / CANL out ▸</text>
+    <!-- Node B -->
+    <rect class="box" x="540" y="60" width="200" height="120" rx="10"/>
+    <text class="lbl" x="640" y="84" text-anchor="middle">Node B — reference</text>
+    <text class="sub" x="640" y="102" text-anchor="middle">Waveshare RP2350-CAN</text>
+    <text class="sub" x="640" y="124" text-anchor="middle" fill="#6cbf72">3.3V-native · crystal pre-matched</text>
+    <text class="sub" x="640" y="140" text-anchor="middle" fill="#6cbf72">the Golden Reference (oracle)</text>
+    <text class="pin" x="640" y="166" text-anchor="middle">◂ CANH / CANL in</text>
+    <!-- CANH line -->
+    <path class="canh" d="M220 120 H540"/>
+    <text class="pin" x="380" y="112" text-anchor="middle">CANH</text>
+    <!-- CANL line -->
+    <path class="canl" d="M220 150 H540"/>
+    <text x="380" y="170" text-anchor="middle" fill="#6cbf72" style="font-family:ui-monospace,monospace;font-size:11px;">CANL</text>
+    <!-- termination left -->
+    <path class="term" d="M250 120 v15 h0"/>
+    <rect class="term" x="244" y="120" width="12" height="30"/>
+    <text class="termlbl" x="250" y="172" text-anchor="middle">120Ω</text>
+    <!-- termination right -->
+    <rect class="term" x="504" y="120" width="12" height="30"/>
+    <text class="termlbl" x="510" y="172" text-anchor="middle">120Ω</text>
+    <text class="sub" x="380" y="210" text-anchor="middle">Differential pair: CANH/CANL swing opposite → common-mode noise cancels.</text>
+    <text class="sub" x="380" y="228" text-anchor="middle">Terminators at BOTH ends stop reflections. Common GND across nodes.</text>
+  </svg>
+  <p class="fig-cap">Why you can't see CAN with a single-ended probe — and why the logic analyzer goes on the SPI lines, not the bus.</p>
+
+  <p><strong>What's happening in the silicon:</strong> CAN is a <em>differential</em> bus — CANH/CANL swing in opposite directions, so common-mode noise cancels; that's why it's industrial-robust and why a single-ended probe shows you nothing useful. 120Ω terminators at each end stop reflections. The MCP2515 is an SPI-controlled CAN <em>controller</em>; the TJA1050 is the <em>transceiver</em> that turns its TX/RX into the differential pair. Config registers live inside the MCP2515 and survive a re-flash (Trap 3).</p>
+  <p><strong>De-risk before two nodes talk:</strong> prove one node alone in <strong>LOOPBACK</strong> mode (TX→RX internal — no bus, no second node). Then bring the bus up. If it won't sync, swap the <strong>Golden Reference Node</strong> in for your hand-built node to bisect: wiring+firmware vs the bus itself. Put the <strong>logic analyzer on the SPI lines</strong> — confirm CS asserts and bytes move.</p>
+  <p class="verify"><b>Verify:</b> LOOPBACK passes → register read-back matches → two nodes ACK → a frame from A appears on B.</p>
+  <p class="writeup"><b>Write-up:</b> what differential signaling buys you, why termination matters, and the crystal/MISO seam in your own words. Reach here understanding both gotchas and you can <em>speak to</em> CAN in an interview — the whole point.</p>
+
+  <h3><span class="rung">RUNG 3</span>Potentiometer via the built-in ADC</h3>
+  <p><strong>New concept:</strong> analog↔digital, resolution, reference voltage. Validates the whole software loop at ~zero hardware risk.</p>
+<pre class="ascii">3V3 ──[ pot top ]
+        wiper ─── GP26 (ADC0)
+GND ──[ pot bottom ]</pre>
+  <p><strong>What's happening:</strong> the pot is a voltage divider; the wiper feeds 0–3.3V to GP26 (ADC0). The RP2350's 12-bit SAR ADC returns <code>0–4095</code> ≈ <code>(Vin/3.3) × 4095</code>. This rung is a <strong>variable-isolator</strong>: it proves the entire browser→device→measure→stream loop with the <em>built-in</em> ADC, so when you swap to the ADS1220 over SPI (rung 4), the SPI chip is the <em>only</em> new variable.</p>
+  <p class="verify"><b>Verify:</b> rotate the pot, watch the value stream; endpoints read ≈0 and ≈4095.</p>
+  <p class="writeup"><b>Write-up:</b> what "12-bit resolution against a 3.3V ref" means in volts-per-count.</p>
+
+  <h3><span class="rung">RUNG 4</span>Same pot via ADS1220 over SPI</h3>
+  <p><strong>New concept:</strong> SPI (CPOL/CPHA), register config, 24-bit delta-sigma, PGA. Only the SPI chip is new → failures are unambiguous.</p>
+<pre class="ascii">Pico            ADS1220        (shares the SPI bus with MCP2515, separate CS)
+GP18 (SCK)  ─── SCLK
+GP19 (MOSI) ─── DIN
+GP16 (MISO) ─── DOUT
+GP20 (CS)   ─── CS
+GP14 (DRDY) ─── DRDY
+3V3         ─── AVDD/DVDD
+GND         ─── GND
+pot wiper   ─── AIN0   (AIN1 ─── GND)</pre>
+  <p><strong>What's happening:</strong> the ADS1220 is a 24-bit delta-sigma ADC — it oversamples and noise-shapes, trading speed for resolution, which is why it beats the built-in SAR for precision. Set the right <strong>SPI mode</strong> (CPOL/CPHA) or every byte is garbage despite clean firmware (Trap 2). Its config registers persist in-chip (Trap 3). It has a PGA and onboard IDAC current sources for ratiometric sensor reads.</p>
+  <p class="verify"><b>Verify against math:</b> short AIN0–AIN1 → read ≈0; known divider → code must equal <code>(Vin/Vref) × 2²³</code> by hand. Logic analyzer on SPI if a byte looks wrong.</p>
+  <p class="writeup"><b>Write-up:</b> SPI mode, what delta-sigma buys over SAR, why you trust the number.</p>
+
+  <h3><span class="rung">RUNG 5</span>PWM a motor via transistor + flyback</h3>
+  <p><strong>New concept:</strong> PWM, current, transistors, power rails, back-EMF. Actuation + power discipline.</p>
+<pre class="ascii">                    +5V rail (power module, NOT Pico 3V3)
+                       │
+                   [ motor ]
+                       │
+          1N4007 ►|───┤   (flyback across motor, cathode to +5V)
+                       │
+Pico GP13 ──[ 1k&#937; ]── base │ collector
+                   2N2222 (NPN)
+                        emitter ── GND ── (common GND with Pico)</pre>
+  <p><strong>What's happening:</strong> PWM is a fast on/off square wave; duty cycle sets average power, so the motor sees an effective fraction of 5V. The 2N2222 switches the motor current the GPIO can't source. The <strong>flyback diode</strong> clamps the inductive back-EMF spike when the motor switches off — without it that spike kills the transistor (Trap 1: current going where it shouldn't, permanent). Power comes from the 5V rail with a <strong>common ground</strong> so the switch reference is shared. A motor stall can brown-out a shared rail (Trap 3) → keep its supply separate from the Pico's.</p>
+  <p class="verify"><b>Verify:</b> sweep duty 0→100% from the browser; confirm diode orientation with the meter <em>before</em> powering.</p>
+  <p class="writeup"><b>Write-up:</b> why the transistor and flyback exist; what duty cycle maps to physically.</p>
+
+  <h3><span class="rung">RUNG 6</span>AI layer + shareable permalink</h3>
+  <p><strong>New concept:</strong> none hardware — pure software, layered last. NL → test-plan → run on the molecule → plain-English readout → permalink for reproducibility. It sits cleanly on top because every rung below already exposes a clean capability over self-ID.</p>
+
+  <!-- 5 -->
+  <h2 id="diagnosis"><span class="num">5</span>The diagnosis playbook</h2>
+  <p>When a rung misbehaves, run the misattribution check <em>before</em> opening the firmware. The default suspicion is the physical layer.</p>
+
+  <div class="mermaid">
+flowchart TD
+  S([Symptom: it does not work]) --> P{Power meter: current sane?}
+  P -->|near-zero| P1[Nothing running: check power, contacts, CS asserting]
+  P -->|too high + hot| P2[Cut power: chip backwards / shorted / dead]
+  P -->|normal| Q{Did it EVER work?}
+  Q -->|worked, now flaky| R[Suspect ESD / cold breadboard contact / loose dupont]
+  Q -->|never worked| T{Single part passes self-test in isolation?}
+  T -->|no| T1[Bad / clone / DOA part: bisect with Golden Reference Node]
+  T -->|yes| U{Logic analyzer: do the bits move?}
+  U -->|no bits / CS not asserting| U1[Wiring / pin map / SPI mode CPOL-CPHA]
+  U -->|bits move, value wrong| V[Crystal mismatch / byte-order / config register]
+  V --> W[ONLY NOW suspect firmware logic]
+  </div>
+  <p class="fig-cap">The order is the lesson: power → history → isolation → wire-level → <em>then</em> code. Your instinct starts at W; literacy starts at P.</p>
+
+  <!-- Ask -->
+  <div class="ask">
+    <div class="label">The ask</div>
+    <p>Build Concept A <strong>one rung at a time</strong>, validating each in isolation before stacking the next. For every rung, write the short <em>"what's actually happening in the silicon"</em> note — physics, why-this-chip, failure modes, code↔silicon mapping. That trail is the deliverable. Success = <strong>being able to explain the hardware</strong>, not making the demo pass. And when it breaks: <strong>suspect the physical layer first.</strong></p>
+  </div>
+
+  <footer>
+    <p><strong>Sources</strong> — every claim above traces to the Arche:</p>
+    <ul>
+      <li><a href="../../queries/poc-hardware-bom.md">POC Hardware BOM</a> — SKUs, build note, arrival ritual</li>
+      <li><a href="../../concepts/learning-hardware-as-a-software-dev.md">Learning Hardware as a Software Dev</a> — the ladder, traps, misattribution</li>
+      <li><a href="../../concepts/poc-mini-molecule-cloud-workbench.md">POC: Mini-Molecule + Cloud Workbench</a></li>
+      <li><a href="../../discoveries/poc-unknown-unknowns.md">POC Unknown-Unknowns discovery</a></li>
+      <li><a href="../../concepts/adom-technical-architecture.md">Adom Technical Architecture</a> · <a href="../../concepts/molecules-and-workcells.md">Molecules and Workcells</a></li>
+      <li><strong>Companion:</strong> <a href="./poc-explainer-for-self.html">What the POC Builds — A Visual Explainer</a> (the <em>what</em>; this is the <em>how-to-build</em>)</li>
+    </ul>
+    <p style="margin-top:1rem;color:var(--ink-faint)">⚙ Pin numbers are derived from the Pico 2 pinout + chosen modules — verify on the bench. Story source of truth: <code>stories/poc-hardware-manual-for-self.md</code>.</p>
+  </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+      fontSize: '14px',
+      primaryColor: dark ? '#2a2319' : '#fffdf8',
+      primaryTextColor: dark ? '#f2ece0' : '#20180c',
+      primaryBorderColor: '#f0a431',
+      lineColor: dark ? '#b8ac98' : '#5c5142',
+      tertiaryColor: dark ? '#201b13' : '#f3ecdd'
+    }
+  });
+</script>
+</body>
+</html>

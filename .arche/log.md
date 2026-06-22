@@ -42,3 +42,7 @@ Append-only. Newest entries at the bottom. See [SCHEMA.md](SCHEMA.md) for entry 
 ## [2026-06-22] query | POC BOM — added vetted Amazon picks for learning tools
 - pages touched: queries/poc-hardware-bom.md
 - notes: vetted current Amazon SKUs (web, June 2026) for the learning-tool additions from the unknown-unknowns discovery: HiLetgo 24MHz 8ch logic analyzer (B077LSG5P2), Waveshare RP2350-CAN reference node (B0F4JH65HY), MakerHawk AT34 USB power meter (B07FMQZVW2), iFixit ESD strap (B00B2T9C8Y). ~$50 picks subtotal.
+
+## [2026-06-22] story | POC Hardware Manual — Build It, Understand It
+- pages touched: stories/poc-hardware-manual-for-self.md, assets/stories/poc-hardware-manual-for-self.html, stories/poc-explainer-for-self.md, index.md
+- notes: hardware build + literacy manual → narrative (report) for self. Pyramid spine; rungs 0–6 with derived pin maps (verify on bench), per-part reference cards, arrival ritual + diagnosis flowcharts (Mermaid), inline-SVG CAN topology. Companion-linked to the prior explainer story.

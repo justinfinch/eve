@@ -41,3 +41,4 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 ## Stories
 
 - [What the POC Builds — A Visual Explainer](stories/poc-explainer-for-self.md) — scrollable narrative with a full architecture diagram: what each Concept (A–D) builds and what the full POC delivers. `poc` `explainer` `self`
+- [POC Hardware Manual — Build It, Understand It](stories/poc-hardware-manual-for-self.md) — bench report: per-part reference, arrival→bring-up ritual, rungs 0–6 with wiring + "what's happening in the silicon", and a suspect-physical-first diagnosis tree. Companion to the explainer. `poc` `hardware-manual` `self`
