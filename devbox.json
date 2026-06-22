@@ -3,7 +3,8 @@
   "packages": [
     "rustup@latest",
     "nodejs@latest",
-    "probe-rs-tools@latest"
+    "probe-rs-tools@latest",
+    "gh@latest"
   ],
   "env": {},
   "shell": {
