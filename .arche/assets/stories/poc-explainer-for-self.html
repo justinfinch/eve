@@ -286,6 +286,190 @@
     </div>
   </section>
 
+  <!-- 1b. WIRING DIAGRAM -->
+  <section>
+    <div class="kicker">From the block diagram to the breadboard</div>
+    <h2>Wiring it up — the separate-parts bench build</h2>
+    <p class="narrow">This is the physical wiring for the <strong>separate-parts</strong> build (Pico&nbsp;2 + standalone MCP2515 modules, kept apart from the all-in-one Waveshare board for learning value). The CAN side crosses a <strong>5V/3.3V boundary</strong>, so the SPI bus runs through a <strong>level shifter</strong>. <span class="src">— wiring + gotchas mirror the build note in <a href="../../queries/poc-hardware-bom.md">the hardware BOM</a>.</span></p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 980 560" role="img" aria-label="Wiring diagram: Raspberry Pi Pico 2 at 3.3V connects over SPI through a BSS138 level shifter to an MCP2515 plus TJA1050 CAN module at 5V; the MISO line is highlighted as the 5V to 3.3V line; a second MCP2515 module joins over a CAN H/L twisted pair with 120 ohm termination; a common ground rail is shared.">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#9fb0b5"/>
+          </marker>
+          <style>
+            .box { fill:#1b262a; stroke:#283539; stroke-width:1.5; }
+            .box-accent { fill:#13312e; stroke:#2dd4bf; stroke-width:2; }
+            .box-blue { fill:#0f2b3a; stroke:#38bdf8; stroke-width:2; }
+            .box-warn { fill:#241f12; stroke:#f5a623; stroke-width:2; }
+            .t { fill:#e8eef0; font:600 15px -apple-system,system-ui,sans-serif; }
+            .ts { fill:#9fb0b5; font:400 11px ui-monospace,Menlo,monospace; }
+            .tw { fill:#f5a623; font:600 10.5px ui-monospace,Menlo,monospace; }
+            .tlabel { fill:#6b7c81; font:700 10px -apple-system,system-ui,sans-serif; letter-spacing:.1em; }
+            .pinlab { fill:#cdd9dc; font:600 10.5px ui-monospace,Menlo,monospace; }
+            .pindot { fill:#0e1416; stroke:#9fb0b5; stroke-width:1.5; }
+            .w { stroke-width:2.5; fill:none; }
+            .w-33 { stroke:#2dd4bf; }
+            .w-5 { stroke:#f5a623; }
+            .w-spi { stroke:#9fb0b5; }
+            .w-miso { stroke:#38bdf8; stroke-width:3.5; }
+            .w-can { stroke:#4ade80; stroke-width:3; }
+            .wlabel { fill:#9fb0b5; font:600 10.5px ui-monospace,Menlo,monospace; }
+          </style>
+        </defs>
+
+        <!-- domain labels -->
+        <text class="tlabel" x="30" y="138">3.3V DOMAIN</text>
+        <text class="tlabel" x="412" y="138">LEVEL SHIFTER</text>
+        <text class="tlabel" x="720" y="138">5V DOMAIN</text>
+
+        <!-- 3.3V / 5V boundary line through the shifter -->
+        <line x1="485" y1="180" x2="485" y2="400" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6"/>
+        <text class="tw" x="485" y="172" text-anchor="middle">3.3V ↔ 5V</text>
+
+        <!-- Pico -->
+        <rect class="box-accent" x="30" y="150" width="180" height="300" rx="10"/>
+        <text class="t" x="120" y="182" text-anchor="middle">Pico 2</text>
+        <text class="ts" x="120" y="200" text-anchor="middle">RP2350 · 3.3V</text>
+
+        <!-- Level shifter -->
+        <rect class="box" x="410" y="180" width="150" height="220" rx="10"/>
+        <text class="t" x="485" y="208" text-anchor="middle">BSS138 ×4</text>
+
+        <!-- MCP2515 #1 -->
+        <rect class="box-warn" x="720" y="180" width="200" height="230" rx="10"/>
+        <text class="t" x="820" y="206" text-anchor="middle" style="fill:#f5a623;">MCP2515 #1</text>
+        <text class="ts" x="820" y="223" text-anchor="middle" style="fill:#c9a25a;">+ TJA1050 · 5V</text>
+        <text class="tw" x="820" y="408" text-anchor="middle">⚠ check crystal: 8 or 16 MHz</text>
+
+        <!-- MCP2515 #2 -->
+        <rect class="box-warn" x="720" y="460" width="200" height="78" rx="10"/>
+        <text class="t" x="812" y="490" text-anchor="middle" style="fill:#f5a623;">MCP2515 #2</text>
+        <text class="ts" x="812" y="508" text-anchor="middle" style="fill:#c9a25a;">2nd node · 120Ω onboard</text>
+
+        <!-- ===== wires ===== -->
+        <!-- 3.3V ref -->
+        <path class="w w-33" d="M210,235 L410,235"/>
+        <!-- SCK -->
+        <path class="w w-spi" d="M210,270 L410,270"/>
+        <path class="w w-spi" d="M560,270 L720,270"/>
+        <!-- MOSI -->
+        <path class="w w-spi" d="M210,305 L410,305"/>
+        <path class="w w-spi" d="M560,305 L720,305"/>
+        <!-- MISO (highlighted) -->
+        <path class="w w-miso" d="M210,340 L410,340"/>
+        <path class="w w-miso" d="M560,340 L720,340"/>
+        <!-- CS -->
+        <path class="w w-spi" d="M210,375 L410,375"/>
+        <path class="w w-spi" d="M560,375 L720,375"/>
+        <!-- 5V: VBUS -> HV ref -> MCP VCC -->
+        <path class="w w-5" d="M210,410 L300,410 L300,500 L640,500 L640,235 L560,235"/>
+        <path class="w w-5" d="M560,235 L720,235"/>
+        <!-- CAN bus to node #2 -->
+        <path class="w w-can" d="M920,255 L950,255 L950,490 L920,490"/>
+        <path class="w w-can" d="M920,295 L968,295 L968,512 L920,512"/>
+
+        <!-- ===== Pico pin dots + labels ===== -->
+        <circle class="pindot" cx="210" cy="235" r="4"/><text class="pinlab" x="204" y="239" text-anchor="end">3V3</text>
+        <circle class="pindot" cx="210" cy="270" r="4"/><text class="pinlab" x="204" y="274" text-anchor="end">GP18 SCK</text>
+        <circle class="pindot" cx="210" cy="305" r="4"/><text class="pinlab" x="204" y="309" text-anchor="end">GP19 MOSI</text>
+        <circle class="pindot" cx="210" cy="340" r="4"/><text class="pinlab" x="204" y="344" text-anchor="end" style="fill:#38bdf8;">GP16 MISO</text>
+        <circle class="pindot" cx="210" cy="375" r="4"/><text class="pinlab" x="204" y="379" text-anchor="end">GP17 CS</text>
+        <circle class="pindot" cx="210" cy="410" r="4"/><text class="pinlab" x="204" y="414" text-anchor="end" style="fill:#f5a623;">VBUS 5V</text>
+
+        <!-- shifter LV pins -->
+        <circle class="pindot" cx="410" cy="235" r="4"/>
+        <circle class="pindot" cx="410" cy="270" r="4"/>
+        <circle class="pindot" cx="410" cy="305" r="4"/>
+        <circle class="pindot" cx="410" cy="340" r="4"/>
+        <circle class="pindot" cx="410" cy="375" r="4"/>
+        <text class="pinlab" x="418" y="239">LV</text>
+        <text class="pinlab" x="418" y="274">B1</text>
+        <text class="pinlab" x="418" y="309">B2</text>
+        <text class="pinlab" x="418" y="344">B3</text>
+        <text class="pinlab" x="418" y="379">B4</text>
+        <!-- shifter HV pins -->
+        <circle class="pindot" cx="560" cy="235" r="4"/>
+        <circle class="pindot" cx="560" cy="270" r="4"/>
+        <circle class="pindot" cx="560" cy="305" r="4"/>
+        <circle class="pindot" cx="560" cy="340" r="4"/>
+        <circle class="pindot" cx="560" cy="375" r="4"/>
+        <text class="pinlab" x="552" y="239" text-anchor="end" style="fill:#f5a623;">HV</text>
+        <text class="pinlab" x="552" y="274" text-anchor="end">A1</text>
+        <text class="pinlab" x="552" y="309" text-anchor="end">A2</text>
+        <text class="pinlab" x="552" y="344" text-anchor="end">A3</text>
+        <text class="pinlab" x="552" y="379" text-anchor="end">A4</text>
+
+        <!-- MCP #1 pins -->
+        <circle class="pindot" cx="720" cy="235" r="4"/><text class="pinlab" x="728" y="239">VCC 5V</text>
+        <circle class="pindot" cx="720" cy="270" r="4"/><text class="pinlab" x="728" y="274">SCK</text>
+        <circle class="pindot" cx="720" cy="305" r="4"/><text class="pinlab" x="728" y="309">SI</text>
+        <circle class="pindot" cx="720" cy="340" r="4"/><text class="pinlab" x="728" y="344" style="fill:#38bdf8;">SO</text>
+        <circle class="pindot" cx="720" cy="375" r="4"/><text class="pinlab" x="728" y="379">CS</text>
+        <!-- MCP #1 CAN pins (right) -->
+        <circle class="pindot" cx="920" cy="255" r="4"/><text class="pinlab" x="912" y="259" text-anchor="end" style="fill:#4ade80;">CANH</text>
+        <circle class="pindot" cx="920" cy="295" r="4"/><text class="pinlab" x="912" y="299" text-anchor="end" style="fill:#4ade80;">CANL</text>
+        <!-- MCP #2 CAN pins -->
+        <circle class="pindot" cx="920" cy="490" r="4"/><text class="pinlab" x="912" y="494" text-anchor="end" style="fill:#4ade80;">CANH</text>
+        <circle class="pindot" cx="920" cy="512" r="4"/><text class="pinlab" x="912" y="516" text-anchor="end" style="fill:#4ade80;">CANL</text>
+
+        <text class="wlabel" x="958" y="380" style="fill:#4ade80;" transform="rotate(90 958 380)">CAN H/L · twisted pair</text>
+        <text class="wlabel" x="30" y="545">GND: one common rail across Pico, shifter &amp; both modules (not drawn)</text>
+      </svg>
+      <div class="legend">
+        <span><i class="swatch" style="background:#2dd4bf;"></i> 3.3V power</span>
+        <span><i class="swatch" style="background:#f5a623;"></i> 5V power</span>
+        <span><i class="swatch" style="background:#9fb0b5;"></i> SPI signal</span>
+        <span><i class="swatch" style="background:#38bdf8;"></i> MISO — the 5V→3.3V line</span>
+        <span><i class="swatch" style="background:#4ade80;"></i> CAN bus (differential)</span>
+      </div>
+      <p class="caption"><strong>MISO</strong> (<code>SO</code> on the module) is the one line the module <em>drives back</em> to the Pico — at 5V it can damage a 3.3V GPIO, so it must cross the shifter. The shifter handles the other SPI lines too (3.3V→5V), since the MCP2515's logic-high threshold is marginal at a bare 3.3V. <strong>Both</strong> CAN modules carry an onboard 120Ω terminator — correct for a 2-node bus.</p>
+    </div>
+
+    <h3 style="margin-top:1.75rem;">Full pin map</h3>
+    <p class="narrow">The SVG shows the CAN/SPI path; here's every connection, including the ADS1220 ADC (3.3V-native — <em>no</em> shifter) and the demo I/O. The ADC sits on a <strong>second SPI bus</strong> (SPI1) so it never shares the level-shifted CAN bus.</p>
+
+    <div class="diagram" style="overflow-x:auto;">
+      <table style="width:100%; min-width:680px; border-collapse:collapse; font-size:.9rem;">
+        <thead>
+          <tr style="text-align:left; color:var(--ink-faint); border-bottom:1px solid var(--line);">
+            <th style="padding:.5rem .6rem; font-weight:700;">Pico 2 pin</th>
+            <th style="padding:.5rem .6rem; font-weight:700;">Connects to</th>
+            <th style="padding:.5rem .6rem; font-weight:700;">Via</th>
+            <th style="padding:.5rem .6rem; font-weight:700;">Notes</th>
+          </tr>
+        </thead>
+        <tbody style="color:var(--ink-dim);">
+          <tr style="border-bottom:1px solid var(--line);"><td colspan="4" style="padding:.55rem .6rem; color:var(--accent); font-weight:650;">CAN bus — SPI0 → MCP2515 (level-shifted, 5V)</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP18</code> SPI0 SCK</td><td style="padding:.4rem .6rem;">MCP2515 <code>SCK</code></td><td style="padding:.4rem .6rem;">shifter B1→A1</td><td style="padding:.4rem .6rem;">clock</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP19</code> SPI0 TX</td><td style="padding:.4rem .6rem;">MCP2515 <code>SI</code> (MOSI)</td><td style="padding:.4rem .6rem;">shifter B2→A2</td><td style="padding:.4rem .6rem;">Pico → module</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem; color:var(--accent-2);"><code>GP16</code> SPI0 RX</td><td style="padding:.4rem .6rem; color:var(--accent-2);">MCP2515 <code>SO</code> (MISO)</td><td style="padding:.4rem .6rem; color:var(--accent-2);">shifter B3→A3</td><td style="padding:.4rem .6rem; color:var(--accent-2);">the 5V→3.3V line — never wire direct</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP17</code></td><td style="padding:.4rem .6rem;">MCP2515 <code>CS</code></td><td style="padding:.4rem .6rem;">shifter B4→A4</td><td style="padding:.4rem .6rem;">chip select</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP20</code></td><td style="padding:.4rem .6rem;">MCP2515 <code>INT</code></td><td style="padding:.4rem .6rem;">own shift / divider</td><td style="padding:.4rem .6rem; color:var(--warn);">optional — or poll the chip and skip it</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem; color:var(--warn);"><code>VBUS</code> (pin 40)</td><td style="padding:.4rem .6rem;">MCP2515 <code>VCC</code> + shifter <code>HV</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">5V rail</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem; color:var(--accent);"><code>3V3</code> (pin 36)</td><td style="padding:.4rem .6rem;">shifter <code>LV</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">3.3V reference for the shifter</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GND</code></td><td style="padding:.4rem .6rem;">module GND + shifter GND</td><td style="padding:.4rem .6rem;">common rail</td><td style="padding:.4rem .6rem;">one shared ground for everything</td></tr>
+          <tr><td colspan="4" style="padding:.4rem .6rem;">module <code>CANH</code>↔<code>CANH</code>, <code>CANL</code>↔<code>CANL</code> between the two boards — twisted pair, 120Ω onboard each end.</td></tr>
+
+          <tr style="border-bottom:1px solid var(--line);"><td colspan="4" style="padding:.55rem .6rem; color:var(--accent); font-weight:650;">Precision ADC — SPI1 → ADS1220 (3.3V-native, no shifter)</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP10</code> SPI1 SCK</td><td style="padding:.4rem .6rem;">ADS1220 <code>SCLK</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">both 3.3V — wire straight</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP11</code> SPI1 TX</td><td style="padding:.4rem .6rem;">ADS1220 <code>DIN</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;"></td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP12</code> SPI1 RX</td><td style="padding:.4rem .6rem;">ADS1220 <code>DOUT</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;"></td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP13</code></td><td style="padding:.4rem .6rem;">ADS1220 <code>CS</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;"></td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP14</code></td><td style="padding:.4rem .6rem;">ADS1220 <code>DRDY</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">data-ready interrupt</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>3V3</code> + <code>GND</code></td><td style="padding:.4rem .6rem;">ADS1220 <code>AVDD/DVDD</code> + GND</td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">power</td></tr>
+          <tr><td style="padding:.4rem .6rem;">—</td><td style="padding:.4rem .6rem;">pot wiper / thermistor → ADS <code>AIN0/AIN1</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">the component the ADC reads</td></tr>
+
+          <tr style="border-bottom:1px solid var(--line);"><td colspan="4" style="padding:.55rem .6rem; color:var(--accent); font-weight:650;">Demo I/O — straight off the Pico (3.3V)</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP15</code></td><td style="padding:.4rem .6rem;">330Ω → LED → GND</td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">GPIO blink</td></tr>
+          <tr><td style="padding:.4rem .6rem;"><code>GP21</code> PWM</td><td style="padding:.4rem .6rem;">MOSFET gate → DC fan/motor</td><td style="padding:.4rem .6rem;">driver</td><td style="padding:.4rem .6rem;">add a flyback diode across the motor</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Pin assignments are a sensible default, not the only valid map — any SPI-capable pins work as long as firmware matches. The two non-negotiables are the <strong>crystal-frequency match</strong> and keeping <strong>module MISO off a bare 3.3V GPIO</strong>.</p>
+  </section>
+
   <!-- 2. CONCEPTS -->
   <section>
     <div class="kicker">The building blocks</div>
