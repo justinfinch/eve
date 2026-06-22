@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What the POC Builds — A Visual Explainer</title>
+<style>
+  :root {
+    --bg: #0e1416;
+    --panel: #151e21;
+    --panel-2: #1b262a;
+    --ink: #e8eef0;
+    --ink-dim: #9fb0b5;
+    --ink-faint: #6b7c81;
+    --accent: #2dd4bf;
+    --accent-2: #38bdf8;
+    --line: #283539;
+    --warn: #f5a623;
+    --good: #4ade80;
+    --serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #fafafa; --panel: #fff; --panel-2: #f1f5f6; --ink: #14201f;
+      --ink-dim: #475459; --ink-faint: #7a878c; --line: #e2e8ea;
+      --accent: #0d9488; --accent-2: #0284c7;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 1.25rem; }
+  .narrow { max-width: 72ch; }
+
+  /* hero */
+  header.hero { padding: 4.5rem 0 2.5rem; border-bottom: 1px solid var(--line); }
+  .tag {
+    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.1; letter-spacing: -0.02em;
+    margin: .6rem 0 .4rem; font-weight: 750;
+  }
+  h1 .em { color: var(--accent); }
+  .subtitle { font-size: 1.18rem; color: var(--ink-dim); max-width: 60ch; margin: .4rem 0 0; }
+
+  /* answer-first banner */
+  .answer {
+    margin: 2.25rem 0; padding: 1.4rem 1.5rem; background: var(--panel);
+    border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    border-radius: 10px;
+  }
+  .answer .lead { font-size: 1.08rem; }
+  .answer strong { color: var(--ink); }
+
+  section { padding: 3rem 0; border-bottom: 1px solid var(--line); }
+  .kicker {
+    font-size: .74rem; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin-bottom: .35rem;
+  }
+  h2 { font-size: 1.7rem; letter-spacing: -0.01em; margin: .1rem 0 1rem; line-height: 1.25; }
+  h3 { font-size: 1.15rem; margin: 0 0 .35rem; }
+  p { margin: 0 0 1rem; }
+  a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--accent-2); }
+  code { font-family: var(--mono); font-size: .86em; background: var(--panel-2);
+         padding: .1em .4em; border-radius: 5px; color: var(--accent); }
+  .src { color: var(--ink-faint); font-size: .82rem; }
+
+  /* SVG diagram frame */
+  .diagram {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.25rem; margin: 1rem 0 .75rem; overflow-x: auto;
+  }
+  .diagram svg { width: 100%; height: auto; min-width: 720px; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 1.1rem; font-size: .82rem; color: var(--ink-dim); margin-top: .4rem; }
+  .legend span { display: inline-flex; align-items: center; gap: .4rem; }
+  .swatch { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+  .caption { font-size: .9rem; color: var(--ink-dim); margin-top: .6rem; }
+
+  /* "what it physically does" callout */
+  .does {
+    margin: 1.25rem 0 .25rem; background: var(--panel-2);
+    border: 1px solid var(--line); border-left: 4px solid var(--accent-2);
+    border-radius: 10px; padding: 1.1rem 1.3rem;
+  }
+  .does h4 { margin: 0 0 .6rem; font-size: .8rem; letter-spacing: .12em;
+             text-transform: uppercase; color: var(--accent-2); }
+  .does ul { margin: 0; padding-left: 0; list-style: none; display: grid; gap: .55rem; }
+  .does li { display: flex; gap: .65rem; align-items: baseline; font-size: .95rem; color: var(--ink-dim); }
+  .does li b { color: var(--ink); }
+  .does .pin {
+    flex: none; font-family: var(--mono); font-size: .68rem; font-weight: 700;
+    color: var(--accent); border: 1px solid var(--accent); border-radius: 5px;
+    padding: .08rem .4rem; min-width: 3.1rem; text-align: center;
+  }
+  .does .pin.opt { color: var(--warn); border-color: var(--warn); }
+  .does .punch { margin: .85rem 0 0; font-size: .92rem; color: var(--ink); }
+
+  /* concept cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.25rem 1.3rem; position: relative; display: flex; flex-direction: column;
+  }
+  .card.spine { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .card .letter {
+    font-family: var(--mono); font-weight: 700; font-size: .95rem; color: var(--bg);
+    background: var(--accent); width: 2rem; height: 2rem; border-radius: 8px;
+    display: grid; place-items: center; margin-bottom: .7rem;
+  }
+  .card.b .letter { background: var(--accent-2); }
+  .card.c .letter, .card.d .letter { background: var(--ink-faint); }
+  .card h3 { margin-bottom: .5rem; }
+  .card p { font-size: .94rem; color: var(--ink-dim); margin-bottom: .9rem; }
+  .card .mirror {
+    margin-top: auto; font-size: .8rem; color: var(--ink-dim);
+    border-top: 1px dashed var(--line); padding-top: .7rem;
+  }
+  .card .mirror b { color: var(--ink); }
+  .badges { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .7rem; }
+  .badge {
+    font-size: .68rem; letter-spacing: .04em; text-transform: uppercase; font-weight: 700;
+    padding: .18rem .5rem; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-dim);
+  }
+  .badge.build { color: var(--accent); border-color: var(--accent); }
+  .badge.opt { color: var(--accent-2); border-color: var(--accent-2); }
+  .badge.readme { color: var(--ink-faint); }
+  .badge.effort-lo::before { content: "● "; color: var(--good); }
+  .badge.effort-mid::before { content: "●● "; color: var(--warn); }
+  .badge.effort-hi::before { content: "●●● "; color: var(--warn); }
+
+  /* pillars */
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .75rem; margin-top: 1.25rem; }
+  .pillar {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 1rem; text-align: center;
+  }
+  .pillar .num { font-family: var(--mono); color: var(--accent); font-size: .8rem; }
+  .pillar .name { font-weight: 650; margin: .3rem 0 .2rem; font-size: .98rem; }
+  .pillar .from { font-size: .76rem; color: var(--ink-faint); }
+
+  /* build path */
+  .path { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: stretch; margin-top: 1.25rem; }
+  .vbox { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; }
+  .vbox h4 { margin: 0 0 .3rem; font-size: 1rem; }
+  .vbox .tagline { color: var(--ink-faint); font-size: .82rem; margin-bottom: .7rem; }
+  .vbox ul { margin: 0; padding-left: 1.1rem; color: var(--ink-dim); font-size: .9rem; }
+  .vbox li { margin-bottom: .3rem; }
+  .arrow { display: grid; place-items: center; color: var(--accent); font-size: 1.6rem; font-weight: 700; }
+  @media (max-width: 640px) {
+    .path { grid-template-columns: 1fr; }
+    .arrow { transform: rotate(90deg); }
+  }
+
+  /* ask */
+  .ask {
+    margin: 2.5rem 0 1rem; padding: 1.5rem 1.6rem; border-radius: 12px;
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--accent);
+  }
+  .ask .kicker { color: var(--accent); }
+  .ask p { font-size: 1.1rem; margin: 0; color: var(--ink); }
+
+  footer { padding: 2.5rem 0 4rem; color: var(--ink-faint); font-size: .85rem; }
+  footer a { color: var(--ink-dim); }
+  .cites { line-height: 2; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="tag">POC Explainer · For Justin · 2026-06-17</div>
+    <h1>What the POC <span class="em">actually builds</span></h1>
+    <p class="subtitle">A desk-scale, browser-driven replica of Adom's entire product loop — design, wire, measure, understand — built on Adom's own stack.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="answer">
+    <p class="lead" style="margin:0;"><strong>The short version:</strong> the POC builds a small modular board — a <em>"molecule"</em> — that <strong>announces what it can do on a bus</strong>, is <strong>driven entirely from a web browser</strong>, can <strong>measure and actuate a real circuit remotely</strong>, and has an <strong>AI layer that runs a test and explains the result in plain English</strong> — with a shareable link so anyone can reproduce it. Every piece is a recognizable slice of Adom's real product, not a generic Arduino demo. <span class="src">— <a href="../../concepts/poc-mini-molecule-cloud-workbench.md">POC: Mini-Molecule + Cloud Workbench</a></span></p>
+  </div>
+
+  <!-- 1. SYSTEM DIAGRAM -->
+  <section>
+    <div class="kicker">The whole system, one picture</div>
+    <h2>Browser → bridge → molecule → real circuit</h2>
+    <p class="narrow">This is the end-to-end data path for the recommended build (Concept&nbsp;A spine, plus the optional Concept&nbsp;B crosspoint). You type or speak an intent in the browser; it travels down to firmware on the board, which measures or drives a real component and streams the value back up. <span class="src">Copied from the architecture sketch in <a href="../../concepts/poc-mini-molecule-cloud-workbench.md">the POC page</a>.</span></p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 980 360" role="img" aria-label="End-to-end POC architecture: Browser workbench to WebSocket to Rust host bridge to USB serial or CAN to molecule firmware to ADC and component under test, with optional CH446Q crosspoint">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#9fb0b5"/>
+          </marker>
+          <style>
+            .box { fill:#1b262a; stroke:#283539; stroke-width:1.5; }
+            .box-accent { fill:#13312e; stroke:#2dd4bf; stroke-width:2; }
+            .box-blue { fill:#0f2b3a; stroke:#38bdf8; stroke-width:2; }
+            .box-opt { fill:#241f12; stroke:#f5a623; stroke-width:1.5; stroke-dasharray:5 4; }
+            .t { fill:#e8eef0; font:600 15px -apple-system,system-ui,sans-serif; }
+            .ts { fill:#9fb0b5; font:400 11.5px ui-monospace,Menlo,monospace; }
+            .tlabel { fill:#6b7c81; font:600 10px -apple-system,system-ui,sans-serif; letter-spacing:.08em; }
+            .wire { stroke:#9fb0b5; stroke-width:2; fill:none; }
+            .wlabel { fill:#9fb0b5; font:600 11px ui-monospace,Menlo,monospace; }
+          </style>
+        </defs>
+
+        <!-- domain labels -->
+        <text class="tlabel" x="20" y="22">CLOUD / BROWSER</text>
+        <text class="tlabel" x="360" y="22">LOCAL HOST</text>
+        <text class="tlabel" x="690" y="22">HARDWARE (the "molecule")</text>
+
+        <!-- Browser -->
+        <rect class="box-accent" x="20" y="60" width="190" height="92" rx="10"/>
+        <text class="t" x="115" y="92" text-anchor="middle">Browser Workbench</text>
+        <text class="ts" x="115" y="114" text-anchor="middle">TS / React UI</text>
+        <text class="ts" x="115" y="132" text-anchor="middle">+ AI layer · permalink</text>
+
+        <!-- Host bridge -->
+        <rect class="box" x="340" y="60" width="190" height="92" rx="10"/>
+        <text class="t" x="435" y="92" text-anchor="middle">Host Bridge</text>
+        <text class="ts" x="435" y="114" text-anchor="middle">Rust · serial /</text>
+        <text class="ts" x="435" y="132" text-anchor="middle">SocketCAN</text>
+
+        <!-- Molecule firmware -->
+        <rect class="box-accent" x="660" y="60" width="200" height="92" rx="10"/>
+        <text class="t" x="760" y="92" text-anchor="middle">Molecule Firmware</text>
+        <text class="ts" x="760" y="114" text-anchor="middle">Rust + Embassy</text>
+        <text class="ts" x="760" y="132" text-anchor="middle">RP2040 / RP2350</text>
+
+        <!-- ADC + CUT -->
+        <rect class="box" x="660" y="210" width="200" height="80" rx="10"/>
+        <text class="t" x="760" y="240" text-anchor="middle">ADC + Component</text>
+        <text class="ts" x="760" y="262" text-anchor="middle">measure · GPIO · PWM</text>
+
+        <!-- optional crosspoint -->
+        <rect class="box-opt" x="375" y="218" width="200" height="64" rx="10"/>
+        <text class="t" x="475" y="245" text-anchor="middle" style="fill:#f5a623;">CH446Q crosspoint</text>
+        <text class="ts" x="475" y="264" text-anchor="middle" style="fill:#c9a25a;">optional · Concept B</text>
+
+        <!-- wires top row -->
+        <line class="wire" x1="210" y1="106" x2="338" y2="106" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+        <text class="wlabel" x="274" y="98" text-anchor="middle">WebSocket</text>
+
+        <line class="wire" x1="530" y1="106" x2="658" y2="106" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+        <text class="wlabel" x="594" y="98" text-anchor="middle">USB serial / CAN</text>
+
+        <!-- firmware to ADC -->
+        <line class="wire" x1="760" y1="152" x2="760" y2="208" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+
+        <!-- crosspoint into measurement path -->
+        <path class="wire" d="M575,250 C620,250 640,250 660,250" marker-end="url(#arrow)" style="stroke:#f5a623;"/>
+
+        <!-- v1 shortcut -->
+        <path class="wire" d="M115,152 C115,320 760,320 760,210" style="stroke:#2dd4bf; stroke-dasharray:6 5;" marker-end="url(#arrow)"/>
+        <text class="wlabel" x="430" y="338" text-anchor="middle" style="fill:#2dd4bf;">v1 shortcut: browser → Web Serial API → Pico directly (Chrome-only)</text>
+      </svg>
+      <div class="legend">
+        <span><i class="swatch" style="background:#13312e;border:2px solid #2dd4bf;"></i> what you build (core)</span>
+        <span><i class="swatch" style="background:#241f12;border:2px solid #f5a623;border-style:dashed;"></i> optional (Concept B)</span>
+        <span><i class="swatch" style="background:#2dd4bf;"></i> v1 shortcut path</span>
+      </div>
+      <p class="caption">v1 skips the Rust bridge entirely — the browser talks straight to the Pico over the Web Serial API, the browser-to-serial pattern <a href="../../entities/john-lauer.md">John Lauer</a> pioneered. v2 adds the bridge, CAN, and the AI layer.</p>
+    </div>
+
+    <div class="does">
+      <h4>What it physically does</h4>
+      <ul>
+        <li><span class="pin">GPIO</span><span><b>Flashes / toggles an LED</b> on and off.</span></li>
+        <li><span class="pin">PWM</span><span><b>Dims that LED — or spins a small DC fan/motor</b> at variable speed.</span></li>
+        <li><span class="pin">ADC</span><span><b>Reads a sensor</b> (pot or thermistor) and <b>streams the live value</b> to the browser.</span></li>
+        <li><span class="pin opt">B</span><span><i>Optional:</i> software-wires a component into the measurement path, then measures it.</span></li>
+        <li><span class="pin opt">D</span><span><i>Stretch:</i> actually <b>turns stepper motors</b> via Gcode typed in the browser.</span></li>
+      </ul>
+      <p class="punch">The point isn't the blinking LED — it's that the <b>whole loop</b> runs end to end: browser → board → real circuit → live readout → AI explanation → shareable permalink. <span class="src">— <a href="../../concepts/poc-mini-molecule-cloud-workbench.md">POC page</a>; demo parts in <a href="../../queries/poc-hardware-bom.md">the hardware BOM</a>.</span></p>
+    </div>
+  </section>
+
+  <!-- 1b. WIRING DIAGRAM -->
+  <section>
+    <div class="kicker">From the block diagram to the breadboard</div>
+    <h2>Wiring it up — the separate-parts bench build</h2>
+    <p class="narrow">This is the physical wiring for the <strong>separate-parts</strong> build (Pico&nbsp;2 + standalone MCP2515 modules, kept apart from the all-in-one Waveshare board for learning value). The CAN side crosses a <strong>5V/3.3V boundary</strong>, so the SPI bus runs through a <strong>level shifter</strong>. <span class="src">— wiring + gotchas mirror the build note in <a href="../../queries/poc-hardware-bom.md">the hardware BOM</a>.</span></p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 980 560" role="img" aria-label="Wiring diagram: Raspberry Pi Pico 2 at 3.3V connects over SPI through a BSS138 level shifter to an MCP2515 plus TJA1050 CAN module at 5V; the MISO line is highlighted as the 5V to 3.3V line; a second MCP2515 module joins over a CAN H/L twisted pair with 120 ohm termination; a common ground rail is shared.">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#9fb0b5"/>
+          </marker>
+          <style>
+            .box { fill:#1b262a; stroke:#283539; stroke-width:1.5; }
+            .box-accent { fill:#13312e; stroke:#2dd4bf; stroke-width:2; }
+            .box-blue { fill:#0f2b3a; stroke:#38bdf8; stroke-width:2; }
+            .box-warn { fill:#241f12; stroke:#f5a623; stroke-width:2; }
+            .t { fill:#e8eef0; font:600 15px -apple-system,system-ui,sans-serif; }
+            .ts { fill:#9fb0b5; font:400 11px ui-monospace,Menlo,monospace; }
+            .tw { fill:#f5a623; font:600 10.5px ui-monospace,Menlo,monospace; }
+            .tlabel { fill:#6b7c81; font:700 10px -apple-system,system-ui,sans-serif; letter-spacing:.1em; }
+            .pinlab { fill:#cdd9dc; font:600 10.5px ui-monospace,Menlo,monospace; }
+            .pindot { fill:#0e1416; stroke:#9fb0b5; stroke-width:1.5; }
+            .w { stroke-width:2.5; fill:none; }
+            .w-33 { stroke:#2dd4bf; }
+            .w-5 { stroke:#f5a623; }
+            .w-spi { stroke:#9fb0b5; }
+            .w-miso { stroke:#38bdf8; stroke-width:3.5; }
+            .w-can { stroke:#4ade80; stroke-width:3; }
+            .wlabel { fill:#9fb0b5; font:600 10.5px ui-monospace,Menlo,monospace; }
+          </style>
+        </defs>
+
+        <!-- domain labels -->
+        <text class="tlabel" x="30" y="138">3.3V DOMAIN</text>
+        <text class="tlabel" x="412" y="138">LEVEL SHIFTER</text>
+        <text class="tlabel" x="720" y="138">5V DOMAIN</text>
+
+        <!-- 3.3V / 5V boundary line through the shifter -->
+        <line x1="485" y1="180" x2="485" y2="400" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6"/>
+        <text class="tw" x="485" y="172" text-anchor="middle">3.3V ↔ 5V</text>
+
+        <!-- Pico -->
+        <rect class="box-accent" x="30" y="150" width="180" height="300" rx="10"/>
+        <text class="t" x="120" y="182" text-anchor="middle">Pico 2</text>
+        <text class="ts" x="120" y="200" text-anchor="middle">RP2350 · 3.3V</text>
+
+        <!-- Level shifter -->
+        <rect class="box" x="410" y="180" width="150" height="220" rx="10"/>
+        <text class="t" x="485" y="208" text-anchor="middle">BSS138 ×4</text>
+
+        <!-- MCP2515 #1 -->
+        <rect class="box-warn" x="720" y="180" width="200" height="230" rx="10"/>
+        <text class="t" x="820" y="206" text-anchor="middle" style="fill:#f5a623;">MCP2515 #1</text>
+        <text class="ts" x="820" y="223" text-anchor="middle" style="fill:#c9a25a;">+ TJA1050 · 5V</text>
+        <text class="tw" x="820" y="408" text-anchor="middle">⚠ check crystal: 8 or 16 MHz</text>
+
+        <!-- MCP2515 #2 -->
+        <rect class="box-warn" x="720" y="460" width="200" height="78" rx="10"/>
+        <text class="t" x="812" y="490" text-anchor="middle" style="fill:#f5a623;">MCP2515 #2</text>
+        <text class="ts" x="812" y="508" text-anchor="middle" style="fill:#c9a25a;">2nd node · 120Ω onboard</text>
+
+        <!-- ===== wires ===== -->
+        <!-- 3.3V ref -->
+        <path class="w w-33" d="M210,235 L410,235"/>
+        <!-- SCK -->
+        <path class="w w-spi" d="M210,270 L410,270"/>
+        <path class="w w-spi" d="M560,270 L720,270"/>
+        <!-- MOSI -->
+        <path class="w w-spi" d="M210,305 L410,305"/>
+        <path class="w w-spi" d="M560,305 L720,305"/>
+        <!-- MISO (highlighted) -->
+        <path class="w w-miso" d="M210,340 L410,340"/>
+        <path class="w w-miso" d="M560,340 L720,340"/>
+        <!-- CS -->
+        <path class="w w-spi" d="M210,375 L410,375"/>
+        <path class="w w-spi" d="M560,375 L720,375"/>
+        <!-- 5V: VBUS -> HV ref -> MCP VCC -->
+        <path class="w w-5" d="M210,410 L300,410 L300,500 L640,500 L640,235 L560,235"/>
+        <path class="w w-5" d="M560,235 L720,235"/>
+        <!-- CAN bus to node #2 -->
+        <path class="w w-can" d="M920,255 L950,255 L950,490 L920,490"/>
+        <path class="w w-can" d="M920,295 L968,295 L968,512 L920,512"/>
+
+        <!-- ===== Pico pin dots + labels ===== -->
+        <circle class="pindot" cx="210" cy="235" r="4"/><text class="pinlab" x="204" y="239" text-anchor="end">3V3</text>
+        <circle class="pindot" cx="210" cy="270" r="4"/><text class="pinlab" x="204" y="274" text-anchor="end">GP18 SCK</text>
+        <circle class="pindot" cx="210" cy="305" r="4"/><text class="pinlab" x="204" y="309" text-anchor="end">GP19 MOSI</text>
+        <circle class="pindot" cx="210" cy="340" r="4"/><text class="pinlab" x="204" y="344" text-anchor="end" style="fill:#38bdf8;">GP16 MISO</text>
+        <circle class="pindot" cx="210" cy="375" r="4"/><text class="pinlab" x="204" y="379" text-anchor="end">GP17 CS</text>
+        <circle class="pindot" cx="210" cy="410" r="4"/><text class="pinlab" x="204" y="414" text-anchor="end" style="fill:#f5a623;">VBUS 5V</text>
+
+        <!-- shifter LV pins -->
+        <circle class="pindot" cx="410" cy="235" r="4"/>
+        <circle class="pindot" cx="410" cy="270" r="4"/>
+        <circle class="pindot" cx="410" cy="305" r="4"/>
+        <circle class="pindot" cx="410" cy="340" r="4"/>
+        <circle class="pindot" cx="410" cy="375" r="4"/>
+        <text class="pinlab" x="418" y="239">LV</text>
+        <text class="pinlab" x="418" y="274">B1</text>
+        <text class="pinlab" x="418" y="309">B2</text>
+        <text class="pinlab" x="418" y="344">B3</text>
+        <text class="pinlab" x="418" y="379">B4</text>
+        <!-- shifter HV pins -->
+        <circle class="pindot" cx="560" cy="235" r="4"/>
+        <circle class="pindot" cx="560" cy="270" r="4"/>
+        <circle class="pindot" cx="560" cy="305" r="4"/>
+        <circle class="pindot" cx="560" cy="340" r="4"/>
+        <circle class="pindot" cx="560" cy="375" r="4"/>
+        <text class="pinlab" x="552" y="239" text-anchor="end" style="fill:#f5a623;">HV</text>
+        <text class="pinlab" x="552" y="274" text-anchor="end">A1</text>
+        <text class="pinlab" x="552" y="309" text-anchor="end">A2</text>
+        <text class="pinlab" x="552" y="344" text-anchor="end">A3</text>
+        <text class="pinlab" x="552" y="379" text-anchor="end">A4</text>
+
+        <!-- MCP #1 pins -->
+        <circle class="pindot" cx="720" cy="235" r="4"/><text class="pinlab" x="728" y="239">VCC 5V</text>
+        <circle class="pindot" cx="720" cy="270" r="4"/><text class="pinlab" x="728" y="274">SCK</text>
+        <circle class="pindot" cx="720" cy="305" r="4"/><text class="pinlab" x="728" y="309">SI</text>
+        <circle class="pindot" cx="720" cy="340" r="4"/><text class="pinlab" x="728" y="344" style="fill:#38bdf8;">SO</text>
+        <circle class="pindot" cx="720" cy="375" r="4"/><text class="pinlab" x="728" y="379">CS</text>
+        <!-- MCP #1 CAN pins (right) -->
+        <circle class="pindot" cx="920" cy="255" r="4"/><text class="pinlab" x="912" y="259" text-anchor="end" style="fill:#4ade80;">CANH</text>
+        <circle class="pindot" cx="920" cy="295" r="4"/><text class="pinlab" x="912" y="299" text-anchor="end" style="fill:#4ade80;">CANL</text>
+        <!-- MCP #2 CAN pins -->
+        <circle class="pindot" cx="920" cy="490" r="4"/><text class="pinlab" x="912" y="494" text-anchor="end" style="fill:#4ade80;">CANH</text>
+        <circle class="pindot" cx="920" cy="512" r="4"/><text class="pinlab" x="912" y="516" text-anchor="end" style="fill:#4ade80;">CANL</text>
+
+        <text class="wlabel" x="958" y="380" style="fill:#4ade80;" transform="rotate(90 958 380)">CAN H/L · twisted pair</text>
+        <text class="wlabel" x="30" y="545">GND: one common rail across Pico, shifter &amp; both modules (not drawn)</text>
+      </svg>
+      <div class="legend">
+        <span><i class="swatch" style="background:#2dd4bf;"></i> 3.3V power</span>
+        <span><i class="swatch" style="background:#f5a623;"></i> 5V power</span>
+        <span><i class="swatch" style="background:#9fb0b5;"></i> SPI signal</span>
+        <span><i class="swatch" style="background:#38bdf8;"></i> MISO — the 5V→3.3V line</span>
+        <span><i class="swatch" style="background:#4ade80;"></i> CAN bus (differential)</span>
+      </div>
+      <p class="caption"><strong>MISO</strong> (<code>SO</code> on the module) is the one line the module <em>drives back</em> to the Pico — at 5V it can damage a 3.3V GPIO, so it must cross the shifter. The shifter handles the other SPI lines too (3.3V→5V), since the MCP2515's logic-high threshold is marginal at a bare 3.3V. <strong>Both</strong> CAN modules carry an onboard 120Ω terminator — correct for a 2-node bus.</p>
+    </div>
+
+    <h3 style="margin-top:1.75rem;">Full pin map</h3>
+    <p class="narrow">The SVG shows the CAN/SPI path; here's every connection, including the ADS1220 ADC (3.3V-native — <em>no</em> shifter) and the demo I/O. The ADC sits on a <strong>second SPI bus</strong> (SPI1) so it never shares the level-shifted CAN bus.</p>
+
+    <div class="diagram" style="overflow-x:auto;">
+      <table style="width:100%; min-width:680px; border-collapse:collapse; font-size:.9rem;">
+        <thead>
+          <tr style="text-align:left; color:var(--ink-faint); border-bottom:1px solid var(--line);">
+            <th style="padding:.5rem .6rem; font-weight:700;">Pico 2 pin</th>
+            <th style="padding:.5rem .6rem; font-weight:700;">Connects to</th>
+            <th style="padding:.5rem .6rem; font-weight:700;">Via</th>
+            <th style="padding:.5rem .6rem; font-weight:700;">Notes</th>
+          </tr>
+        </thead>
+        <tbody style="color:var(--ink-dim);">
+          <tr style="border-bottom:1px solid var(--line);"><td colspan="4" style="padding:.55rem .6rem; color:var(--accent); font-weight:650;">CAN bus — SPI0 → MCP2515 (level-shifted, 5V)</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP18</code> SPI0 SCK</td><td style="padding:.4rem .6rem;">MCP2515 <code>SCK</code></td><td style="padding:.4rem .6rem;">shifter B1→A1</td><td style="padding:.4rem .6rem;">clock</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP19</code> SPI0 TX</td><td style="padding:.4rem .6rem;">MCP2515 <code>SI</code> (MOSI)</td><td style="padding:.4rem .6rem;">shifter B2→A2</td><td style="padding:.4rem .6rem;">Pico → module</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem; color:var(--accent-2);"><code>GP16</code> SPI0 RX</td><td style="padding:.4rem .6rem; color:var(--accent-2);">MCP2515 <code>SO</code> (MISO)</td><td style="padding:.4rem .6rem; color:var(--accent-2);">shifter B3→A3</td><td style="padding:.4rem .6rem; color:var(--accent-2);">the 5V→3.3V line — never wire direct</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP17</code></td><td style="padding:.4rem .6rem;">MCP2515 <code>CS</code></td><td style="padding:.4rem .6rem;">shifter B4→A4</td><td style="padding:.4rem .6rem;">chip select</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP20</code></td><td style="padding:.4rem .6rem;">MCP2515 <code>INT</code></td><td style="padding:.4rem .6rem;">own shift / divider</td><td style="padding:.4rem .6rem; color:var(--warn);">optional — or poll the chip and skip it</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem; color:var(--warn);"><code>VBUS</code> (pin 40)</td><td style="padding:.4rem .6rem;">MCP2515 <code>VCC</code> + shifter <code>HV</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">5V rail</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem; color:var(--accent);"><code>3V3</code> (pin 36)</td><td style="padding:.4rem .6rem;">shifter <code>LV</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">3.3V reference for the shifter</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GND</code></td><td style="padding:.4rem .6rem;">module GND + shifter GND</td><td style="padding:.4rem .6rem;">common rail</td><td style="padding:.4rem .6rem;">one shared ground for everything</td></tr>
+          <tr><td colspan="4" style="padding:.4rem .6rem;">module <code>CANH</code>↔<code>CANH</code>, <code>CANL</code>↔<code>CANL</code> between the two boards — twisted pair, 120Ω onboard each end.</td></tr>
+
+          <tr style="border-bottom:1px solid var(--line);"><td colspan="4" style="padding:.55rem .6rem; color:var(--accent); font-weight:650;">Precision ADC — SPI1 → ADS1220 (3.3V-native, no shifter)</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP10</code> SPI1 SCK</td><td style="padding:.4rem .6rem;">ADS1220 <code>SCLK</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">both 3.3V — wire straight</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP11</code> SPI1 TX</td><td style="padding:.4rem .6rem;">ADS1220 <code>DIN</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;"></td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP12</code> SPI1 RX</td><td style="padding:.4rem .6rem;">ADS1220 <code>DOUT</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;"></td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP13</code></td><td style="padding:.4rem .6rem;">ADS1220 <code>CS</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;"></td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP14</code></td><td style="padding:.4rem .6rem;">ADS1220 <code>DRDY</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">data-ready interrupt</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>3V3</code> + <code>GND</code></td><td style="padding:.4rem .6rem;">ADS1220 <code>AVDD/DVDD</code> + GND</td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">power</td></tr>
+          <tr><td style="padding:.4rem .6rem;">—</td><td style="padding:.4rem .6rem;">pot wiper / thermistor → ADS <code>AIN0/AIN1</code></td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">the component the ADC reads</td></tr>
+
+          <tr style="border-bottom:1px solid var(--line);"><td colspan="4" style="padding:.55rem .6rem; color:var(--accent); font-weight:650;">Demo I/O — straight off the Pico (3.3V)</td></tr>
+          <tr style="border-bottom:1px solid var(--line);"><td style="padding:.4rem .6rem;"><code>GP15</code></td><td style="padding:.4rem .6rem;">330Ω → LED → GND</td><td style="padding:.4rem .6rem;">direct</td><td style="padding:.4rem .6rem;">GPIO blink</td></tr>
+          <tr><td style="padding:.4rem .6rem;"><code>GP21</code> PWM</td><td style="padding:.4rem .6rem;">MOSFET gate → DC fan/motor</td><td style="padding:.4rem .6rem;">driver</td><td style="padding:.4rem .6rem;">add a flyback diode across the motor</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Pin assignments are a sensible default, not the only valid map — any SPI-capable pins work as long as firmware matches. The two non-negotiables are the <strong>crystal-frequency match</strong> and keeping <strong>module MISO off a bare 3.3V GPIO</strong>.</p>
+  </section>
+
+  <!-- 2. CONCEPTS -->
+  <section>
+    <div class="kicker">The building blocks</div>
+    <h2>What each Concept builds — and what it mirrors</h2>
+    <p class="narrow">The brief proposes four concepts. Each one builds a different slice of Adom's real machine; the recommendation is to build <strong>A</strong>, add <strong>B</strong> if time allows, and keep <strong>C</strong>'s framing in the README. <span class="src">— <a href="../../concepts/poc-mini-molecule-cloud-workbench.md">POC page</a>, mapped to <a href="../../concepts/adom-technical-architecture.md">Adom Technical Architecture</a>.</span></p>
+
+    <div class="cards">
+      <div class="card spine a">
+        <div class="letter">A</div>
+        <div class="badges"><span class="badge build">Build — the spine</span><span class="badge effort-mid">2 weekends + v2</span></div>
+        <h3>Mini-Molecule + Cloud Workbench</h3>
+        <p>The full vertical slice: a board that <b>self-identifies</b> on a bus (<code>{id, name, capabilities}</code>), is <b>driven from the browser</b>, does <b>remote measure + actuate</b> (ADC / GPIO / PWM, streamed live), and has an <b>AI layer</b> that turns plain language into a test + a plain-English readout, with a <b>shareable permalink</b>.</p>
+        <div class="mirror">Mirrors: <b>the whole product</b> — molecule + module bus + Rust→TS control plane + Hydrogen-Desktop agent.</div>
+      </div>
+
+      <div class="card b">
+        <div class="letter">B</div>
+        <div class="badges"><span class="badge opt">Build if time</span><span class="badge effort-lo">~$2 chip</span></div>
+        <h3>Programmable Patch Matrix</h3>
+        <p>A <code>CH446Q</code> analog crosspoint (the Jumperless chip) lets the browser <b>wire a component into the measurement path in software</b>, then measure it. "Wire it in software, measure it remotely."</p>
+        <div class="mirror">Mirrors: <b>the workcell</b> — programmable wiring, a miniature of Adom's robot-wiring. <span class="src"><a href="../../concepts/programmable-wiring.md">Programmable Wiring</a></span></div>
+      </div>
+
+      <div class="card c">
+        <div class="letter">C</div>
+        <div class="badges"><span class="badge readme">README framing</span><span class="badge effort-mid">medium</span></div>
+        <h3>Remote Bring-Up Box</h3>
+        <p>An Arduino test fixture: <b>power-cycle</b> a board-under-test, poke an input, measure output, run an <b>automated pass/fail suite</b>, report to a dashboard. "CI/CD for hardware."</p>
+        <div class="mirror">Mirrors: <b>the white space</b> — <a href="../../concepts/automated-remote-bring-up.md">automated remote bring-up</a>, the genuinely unsolved problem.</div>
+      </div>
+
+      <div class="card d">
+        <div class="letter">D</div>
+        <div class="badges"><span class="badge readme">stretch</span><span class="badge effort-hi">most build time</span></div>
+        <h3>Gcode Molecule Mover</h3>
+        <p>A 2-axis motion rig driven by <b>Gcode typed in the browser</b> → serial → stepper pulses. The coolest robotics signal, but the heaviest lift.</p>
+        <div class="mirror">Mirrors: <b>the robot motion</b> — Adom's Klipper 8-axis fork for wire-bending pincers.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. FULL DELIVERY -->
+  <section>
+    <div class="kicker">The whole greater than the parts</div>
+    <h2>What the full POC delivers</h2>
+    <p class="narrow">Build <strong>A + B</strong> and you demonstrate <strong>five Adom pillars</strong> at once, for a ~$20–30 bill of materials. That's the payload: not one trick, but the complete loop. <span class="src">— <a href="../../concepts/poc-mini-molecule-cloud-workbench.md">POC page</a>.</span></p>
+
+    <div class="pillars">
+      <div class="pillar"><div class="num">01</div><div class="name">Molecule</div><div class="from">self-identifying board · A</div></div>
+      <div class="pillar"><div class="num">02</div><div class="name">Programmable wiring</div><div class="from">CH446Q crosspoint · B</div></div>
+      <div class="pillar"><div class="num">03</div><div class="name">Remote measurement</div><div class="from">ADC / GPIO / PWM · A</div></div>
+      <div class="pillar"><div class="num">04</div><div class="name">AI layer</div><div class="from">NL → test → readout · A</div></div>
+      <div class="pillar"><div class="num">05</div><div class="name">Reproducibility</div><div class="from">shareable permalink · A</div></div>
+    </div>
+
+    <div class="path">
+      <div class="vbox">
+        <h4>v1 — prove the loop</h4>
+        <div class="tagline">a couple of weekends</div>
+        <ul>
+          <li>Browser → <b>Web Serial</b> → Pico directly</li>
+          <li>Self-ID + read ADC + toggle GPIO/PWM</li>
+          <li>Live value streaming in the browser</li>
+          <li>No bridge, no CAN, no AI yet</li>
+        </ul>
+      </div>
+      <div class="arrow">→</div>
+      <div class="vbox">
+        <h4>v2 — make it Adom-shaped</h4>
+        <div class="tagline">add the signal-maxing pieces</div>
+        <ul>
+          <li>Add <b>CAN</b> via MCP2515 + Rust bridge</li>
+          <li>Add the <b>AI</b> test-plan + readout layer</li>
+          <li>Add <b>permalink</b> reproducibility</li>
+          <li>Bolt on <b>Concept B</b> crosspoint</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. SO WHAT -->
+  <section>
+    <div class="kicker">Why it lands</div>
+    <h2>The "so what"</h2>
+    <p class="narrow">The killer move is building on Adom's <strong>own</strong> MIT/Apache-licensed crates — <code>postcard-rpc</code> (messaging), <code>mcp2515</code> (CAN), <code>tsify</code> (Rust→TS types), and the <code>Embassy</code> fork (firmware). That turns the project from <em>"I made a demo"</em> into <em>"I used your stack to build a mini version of your product."</em> <span class="src">— <a href="../../concepts/poc-mini-molecule-cloud-workbench.md">POC page</a> citing <a href="../../sources/adom-decoded-and-poc-plan.md">Adom, Decoded</a>.</span></p>
+  </section>
+
+  <div class="ask">
+    <div class="kicker">The takeaway</div>
+    <p>You should now be able to sketch the path — <strong>browser → bridge → molecule → circuit</strong> — from memory, and say for each concept what it builds and which Adom subsystem it mirrors, and why <strong>A + B together</strong> prove the five pillars on Adom's own stack.</p>
+  </div>
+
+  <footer>
+    <p class="cites"><strong>Grounded in:</strong>
+      <a href="../../concepts/poc-mini-molecule-cloud-workbench.md">POC: Mini-Molecule + Cloud Workbench</a> ·
+      <a href="../../concepts/adom-technical-architecture.md">Adom Technical Architecture</a> ·
+      <a href="../../concepts/programmable-wiring.md">Programmable Wiring</a> ·
+      <a href="../../concepts/automated-remote-bring-up.md">Automated Remote Bring-Up</a> ·
+      <a href="../../concepts/molecules-and-workcells.md">Molecules and Workcells</a> ·
+      <a href="../../sources/adom-decoded-and-poc-plan.md">Adom, Decoded</a> ·
+      <a href="../../entities/adom-industries.md">Adom Industries</a> ·
+      <a href="../../entities/john-lauer.md">John Lauer</a>
+    </p>
+    <p>Source of truth: <code>stories/poc-explainer-for-self.md</code> — this HTML is derived from it.</p>
+  </footer>
+
+</div>
+</body>
+</html>

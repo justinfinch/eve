@@ -23,6 +23,9 @@ logs/
 *.pem
 *.key
 
+# Project-local gh CLI config (holds GitHub auth token) — see devbox.json GH_CONFIG_DIR
+.gh/
+
 # Dependencies
 node_modules/
 __pycache__/

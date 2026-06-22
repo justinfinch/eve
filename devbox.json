@@ -3,9 +3,12 @@
   "packages": [
     "rustup@latest",
     "nodejs@latest",
-    "probe-rs-tools@latest"
+    "probe-rs-tools@latest",
+    "gh@latest"
   ],
-  "env": {},
+  "env": {
+    "GH_CONFIG_DIR": "$PWD/.gh"
+  },
   "shell": {
     "scripts": {}
   }

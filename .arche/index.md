@@ -31,7 +31,7 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 
 ## Queries
 
-_None yet._
+- [What Hardware Do I Need to Buy (POC BOM)](queries/poc-hardware-bom.md) — concrete parts list for the Mini-Molecule POC: Pico 2, MCP2515, ADS1220, supporting parts; CH446Q for optional Concept B. `poc` `bom` `hardware`
 
 ## Discoveries
 
@@ -39,4 +39,4 @@ _None yet. Run `/arche-discover` to facilitate a discovery / ideation session._
 
 ## Stories
 
-_None yet. Run `/arche-tell` to produce a presentation-ready HTML artifact from Arche content._
+- [What the POC Builds — A Visual Explainer](stories/poc-explainer-for-self.md) — scrollable narrative with a full architecture diagram: what each Concept (A–D) builds and what the full POC delivers. `poc` `explainer` `self`
