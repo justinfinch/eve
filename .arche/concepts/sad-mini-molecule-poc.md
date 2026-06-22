@@ -99,6 +99,7 @@ Every load-bearing decision has its own ADR.
 
 ## See also
 
+- [Spec — Project Foundation](../specs/spec-project-foundation.md) — the first increment realizing this SAD's Deployment & Build views as a trivial end-to-end seam.
 - [ARD — Mini-Molecule POC](ard-mini-molecule-poc.md) — requirements this solution satisfies.
 - [POC: Mini-Molecule + Cloud Workbench](poc-mini-molecule-cloud-workbench.md) — the originating concept.
 - [Adom Technical Architecture](adom-technical-architecture.md) — the stack mirrored.
