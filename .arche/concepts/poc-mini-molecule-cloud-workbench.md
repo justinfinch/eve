@@ -39,3 +39,4 @@ A desk-scale proof-of-concept that mirrors Adom's real architecture: a small mod
 - [Programmable Wiring](programmable-wiring.md)
 - [Automated Remote Bring-Up](automated-remote-bring-up.md)
 - [Adom Industries](../entities/adom-industries.md)
+- Story: [What the POC Builds — A Visual Explainer](../stories/poc-explainer-for-self.md)
