@@ -1,7 +1,7 @@
 ---
 type: index
 created: 2026-06-16
-updated: 2026-06-17
+updated: 2026-06-22
 ---
 
 # Arche Index
@@ -28,6 +28,7 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 - [AI-Native EDA](concepts/ai-native-eda.md) — Diode/JITX/Quilter/Flux/Cofactr race; LLMs hallucinate and can fry boards. `prior-art` `competitors`
 - [Automated Remote Bring-Up](concepts/automated-remote-bring-up.md) — the genuinely unsolved white space: end-to-end remote test. `white-space` `remote-test`
 - [POC: Mini-Molecule + Cloud Workbench](concepts/poc-mini-molecule-cloud-workbench.md) — recommended desk-scale POC (Concepts A–D) mirroring Adom's stack. `poc` `interview-prep`
+- [Learning Hardware as a Software Dev](concepts/learning-hardware-as-a-software-dev.md) — the POC's real deliverable is hardware literacy, not a working rig: intuition traps, the misattribution meta-skill, a learning-sequenced ladder. `poc` `hardware-literacy` `software-dev`
 
 ## Queries
 
@@ -35,7 +36,7 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 
 ## Discoveries
 
-_None yet. Run `/arche-discover` to facilitate a discovery / ideation session._
+- [POC Unknown-Unknowns — Learning Hardware as a Software Dev](discoveries/poc-unknown-unknowns.md) — pre-mortem of the Mini-Molecule POC; 24 ideas across 5 themes; reframed the deliverable from "working rig" to "hardware literacy." `poc` `unknown-unknowns` `hardware-literacy`
 
 ## Stories
 

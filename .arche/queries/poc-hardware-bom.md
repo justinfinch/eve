@@ -4,7 +4,7 @@ title: "What Hardware Do I Need to Buy (POC BOM)"
 created: 2026-06-17
 updated: 2026-06-22
 tags: [poc, bom, hardware, parts-list, interview-prep, mini-molecule]
-sources: [concepts/poc-mini-molecule-cloud-workbench.md, concepts/adom-technical-architecture.md, concepts/programmable-wiring.md, sources/adom-decoded-and-poc-plan.md]
+sources: [concepts/poc-mini-molecule-cloud-workbench.md, concepts/adom-technical-architecture.md, concepts/programmable-wiring.md, sources/adom-decoded-and-poc-plan.md, discoveries/poc-unknown-unknowns.md, concepts/learning-hardware-as-a-software-dev.md]
 ---
 
 # What Hardware Do I Need to Buy (POC BOM)
@@ -75,6 +75,50 @@ The raw **CH446Q** (~$1, the Jumperless chip per [Programmable Wiring](../concep
 
 The Arche specifies *what* to buy and an approximate total but no exact SKUs, vendor links, or quantities for the supporting parts (ADC, component-under-test, wires, breadboard, cables); those were filled from web vendor data, not the Arche, and prices/availability will drift. The pragmatic **v1 (browser → Web Serial → Pico, no CAN, no bridge)** needs only the Pico + ADC + supporting parts — the CAN modules and crosspoint are deferrable ([POC](../concepts/poc-mini-molecule-cloud-workbench.md) citing [Adom, Decoded](../sources/adom-decoded-and-poc-plan.md)).
 
+## Tooling for *learning* (not in the original BOM)
+
+Added from the [POC Unknown-Unknowns discovery](../discoveries/poc-unknown-unknowns.md): if the goal is hardware *literacy*, not just a working rig (see [Learning Hardware as a Software Dev](../concepts/learning-hardware-as-a-software-dev.md)), the most important "parts" are the ones that make the invisible physical layer **observable** — none of which were in the parts list. Time-sensitive: source these while the order is open.
+
+| Item | ~Price | Why it matters for learning |
+|---|---|---|
+| **USB logic analyzer** (8-ch clone + PulseView) | ~$10 | "Your debugger is a multimeter" — but a logic analyzer lets you *watch* SPI/CAN bits on the wire. Non-negotiable once CAN moves early (its failures are invisible: differential pair, ACK bits, bit-timing). Being able to say "I scoped the bus and saw CS wasn't asserting" *is* the hardware-fluency signal. |
+| **2nd Waveshare RP2350-CAN** (as a *reference* node) | ~$10–18 | **The Golden Reference Node.** Buy one known-good all-in-one *and* build the other CAN node from separate parts. When the bus won't sync, swap it in to bisect "my hand-wired node + firmware" vs "the bus itself." (Same part the BOM lists as the "shortcut" — here it's a diagnostic oracle, not an escape hatch.) |
+| **USB power meter** (inline V/A display) | ~$10 | Current draw and heat are *pre-code* vital signs: near-zero = nothing running; too-high + hot = backwards/shorted chip → cut power before it dies. The "smoke" in smoke test, quantified. |
+| **ESD wrist strap** | ~$5 | Software devs have zero ESD reflexes; static causes *latent* damage (works today, flaky next week) you'll blame on firmware. Nearly-free insurance against the worst failure mode — invisible, delayed, self-misattributing. |
+
+### Selected learning-tool picks (Amazon, vetted 2026-06-22)
+
+| Tool | Picked | ~Price | Amazon |
+|---|---|---|---|
+| USB logic analyzer | **HiLetgo 24 MHz 8-ch** (Saleae-compatible; works with PulseView/sigrok) | ~$10 | [B077LSG5P2](https://www.amazon.com/HiLetgo-Analyzer-Ferrite-Channel-Arduino/dp/B077LSG5P2) |
+| Golden Reference Node | **Waveshare RP2350-CAN** (XL2515 = MCP2515 clone + SIT65HVD230 3.3V transceiver; USB-C, selectable 120Ω term) | ~$18 | [B0F4JH65HY](https://www.amazon.com/Development-Dual-architecture-Microcontroller-SIT65HVD230-Transceiver/dp/B0F4JH65HY) |
+| USB power meter | **MakerHawk AT34** IPS color, 3.7–30V / 0–4A inline | ~$14 | [B07FMQZVW2](https://www.amazon.com/MakerHawk-3-7-30V-Voltage-Multimeter-Voltmeter/dp/B07FMQZVW2) |
+| ESD wrist strap | **iFixit** adjustable, 1 MΩ coiled cord + alligator clip | ~$8 | [B00B2T9C8Y](https://www.amazon.com/iFixit-Anti-static-Wrist-Strap-Adjustable/dp/B00B2T9C8Y) |
+
+**Picks subtotal: ~$50.** Prices drift; confirm at checkout (ASINs are stable, listings are not). Notes from vetting:
+
+- **Logic analyzer.** The HiLetgo/Comidox/generic "24MHz 8CH" boards are the same Cypress FX2 design — any works with **PulseView (sigrok)**, the free open-source capture UI. 0–5.5V inputs, 1.5V threshold → reads 3.3V logic fine. A cheaper no-brand clone (~$7, e.g. [B07KW445DJ](https://www.amazon.com/Comidox-Analyzer-Device-Channel-Arduino/dp/B07KW445DJ)) is functionally identical if you want to save a few dollars.
+- **Reference node.** This is the *same* Waveshare RP2350-CAN the core BOM lists as the all-in-one "shortcut" — here you buy **one** as a known-good oracle and build the *other* node from the separate Pico + HiLetgo MCP2515 module, so you can bisect bus faults. The 3.3V-native SIT65HVD230 transceiver + pre-matched crystal are exactly the gotchas that make it trustworthy as a reference. ⚠️ It's **USB-C** (the Pico 2 W is micro-USB) — you'll want a USB-C data cable for it.
+- **USB power meter.** Measures *total board current drawn from USB* — perfect for the gross "is a chip shorted/backwards?" vital sign (#23), but it can't isolate per-module current. That's fine for this POC; a bench supply with a current knob would be the next step up, and isn't needed here.
+- **ESD strap.** 1 MΩ inline resistor is the safety standard (limits discharge current through you). Clip the alligator to a grounded metal surface — a screw on a plugged-in metal-case PSU/chassis, or a proper ground point.
+
+## Arrival → bring-up ritual
+
+From the [POC Unknown-Unknowns discovery](../discoveries/poc-unknown-unknowns.md). There's **no `package-lock.json` for atoms** — no hash guarantees you got the right bytes. Treat the box landing as "ready to *audit*," not "ready to build." Adopt manufacturing's receiving-inspection discipline:
+
+**1. Audit before assembly.**
+- **Decode the chip top-markings** with a loupe/phone-macro and cross-check the datasheet — the *listing lies, the silkscreen half-lies, the chip tells the truth*. Confirm the ADS1220 is an ADS1220, the Pico is a genuine **RP2350 (not a mislabeled RP2040)**, the transceiver is a TJA1050.
+- **Read both MCP2515 crystal cans** (8.000 vs 16.000 MHz), label each with tape. This 30-second step pre-empts the entire "CAN bug" misattribution spiral — discover a mismatch *now*, on a calm afternoon, not at hour three.
+- Visual check: bent pins, solder bridges, missing SMD parts, cold joints on pre-soldered headers.
+
+**2. Smoke-test each part in isolation** (unit test before integration):
+- **Power it alone**, watch the USB power meter and *feel/smell* for heat → confirm a vital sign before integrating.
+- **Verify against math, not against an instrument you also don't trust.** ADS1220: short AIN+ to AIN− → read ≈0; feed a known divider → the code must equal `(Vin/Vref) × 2²³` computed by hand.
+- **Use the chips' own self-test modes.** The MCP2515 **LOOPBACK mode** routes its TX→RX internally — prove the CAN node (chip + SPI + firmware + crystal) on *one* node, no bus, no second node — plus write-a-config-register-then-read-it-back. The datasheet's "modes" section is a bring-up toolbox.
+- **Passive parts test with a meter only.** The BSS138 level shifter needs no code: apply 3.3V one side, measure the other.
+
+**3. Integrate one variable at a time** — so any failure is unambiguously the *one* thing you just added.
+
 ## Build note — MCP2515 module on a 3.3V Pico
 
 Specific to the separate-parts build (Pico 2 + standalone HiLetgo-style MCP2515 module, kept separate from the all-in-one Waveshare board for learning value). Two things to check before/at assembly:
@@ -91,6 +135,8 @@ The all-in-one **Waveshare RP2350-CAN** board avoids both gotchas (3.3V-native, 
 ## See also
 
 - [POC: Mini-Molecule + Cloud Workbench](../concepts/poc-mini-molecule-cloud-workbench.md)
+- [Learning Hardware as a Software Dev](../concepts/learning-hardware-as-a-software-dev.md)
+- [POC Unknown-Unknowns discovery](../discoveries/poc-unknown-unknowns.md)
 - [Adom Technical Architecture](../concepts/adom-technical-architecture.md)
 - [Programmable Wiring](../concepts/programmable-wiring.md)
 - [Adom, Decoded — Problem Space + a POC of Their Actual App](../sources/adom-decoded-and-poc-plan.md)

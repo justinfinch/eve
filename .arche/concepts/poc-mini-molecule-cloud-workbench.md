@@ -2,9 +2,9 @@
 type: concept
 title: "POC: Mini-Molecule + Cloud Workbench"
 created: 2026-06-17
-updated: 2026-06-17
+updated: 2026-06-22
 tags: [poc, interview-prep, mini-molecule, rust, embassy, can, web-serial, ai-layer]
-sources: [sources/adom-decoded-and-poc-plan.md]
+sources: [sources/adom-decoded-and-poc-plan.md, discoveries/poc-unknown-unknowns.md, concepts/learning-hardware-as-a-software-dev.md]
 ---
 
 # POC: Mini-Molecule + Cloud Workbench
@@ -27,6 +27,10 @@ A desk-scale proof-of-concept that mirrors Adom's real architecture: a small mod
 
 **The killer move:** build on Adom's own MIT/Apache-licensed crates — `postcard-rpc` (messaging), `mcp2515` (CAN on a $2 module), `tsify` (Rust→TS types), Embassy (firmware) — turning "I made a demo" into "I used your stack to build a mini version of your product" ([source](../sources/adom-decoded-and-poc-plan.md)).
 
+## Build order — sequenced for *learning*, not feature-completeness
+
+A [discovery session](../discoveries/poc-unknown-unknowns.md) reframed the deliverable: for a software developer, the POC's real output is **hardware literacy**, not a working rig — "get it working" is a trap. That changes the *order* you build Concept A's modules (same modules, same parts — not a divergence). Build order ≠ the product order above; sequence by hardware-concept difficulty and blast radius, with three disciplines: **build the browser↔device instrument early** (it's a software dev's home turf, and it becomes your readout for every later rung), **make self-ID the spine every rung extends** (`[gpio]` → `[gpio,adc]` → over-CAN — exactly how a real [molecule](molecules-and-workcells.md) behaves), and **do CAN early on purpose** ("bloody me on the signature tech"), de-risked by LOOPBACK self-test + a Golden Reference Node. Full ladder, the software-developer intuition traps, and the misattribution meta-skill live in [Learning Hardware as a Software Dev](learning-hardware-as-a-software-dev.md); the arrival/smoke-test ritual and learning-tooling additions live in the [POC Hardware BOM](../queries/poc-hardware-bom.md) ([source](../discoveries/poc-unknown-unknowns.md)).
+
 ## Examples
 
 - Architecture sketch (Concept A): Browser Workbench (TS/React) ⇄ WebSocket ⇄ Host Bridge (Rust, serial/SocketCAN) ⇄ USB serial / CAN ⇄ Molecule firmware (Rust + Embassy on RP2040/RP2350) ⇄ ADC + component-under-test (+ optional CH446Q crosspoint) ([source](../sources/adom-decoded-and-poc-plan.md)).
@@ -34,6 +38,8 @@ A desk-scale proof-of-concept that mirrors Adom's real architecture: a small mod
 
 ## See also
 
+- [Learning Hardware as a Software Dev](learning-hardware-as-a-software-dev.md)
+- [POC Unknown-Unknowns discovery](../discoveries/poc-unknown-unknowns.md)
 - [Adom Technical Architecture](adom-technical-architecture.md)
 - [Molecules and Workcells](molecules-and-workcells.md)
 - [Programmable Wiring](programmable-wiring.md)

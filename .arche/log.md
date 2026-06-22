@@ -34,3 +34,11 @@ Append-only. Newest entries at the bottom. See [SCHEMA.md](SCHEMA.md) for entry 
 ## [2026-06-22] manual | Reframe README to external resume voice
 - pages touched: /README.md (repo root), stories/poc-explainer-for-self.md
 - notes: rewrote README voice from internal "our approach" to first-person, addressed to an Adom resume reviewer ("Why I built it this way", "I scoped...", scope column instead of internal status). README and story now diverge in voice by design; updated the story's companion note to keep facts in sync without flattening README voice.
+
+## [2026-06-22] discovery | POC Unknown-Unknowns — Learning Hardware as a Software Dev
+- pages touched: discoveries/poc-unknown-unknowns.md, concepts/learning-hardware-as-a-software-dev.md, queries/poc-hardware-bom.md, concepts/poc-mini-molecule-cloud-workbench.md, index.md
+- notes: pre-mortem/assumption-reversal session on unknown-unknowns in the Mini-Molecule POC — 24 ideas across 5 themes, 3 promoted. Reframed the deliverable from "working rig" to hardware literacy. New concept page (learning-hardware-as-a-software-dev); promoted arrival/smoke-test ritual + learning tooling (logic analyzer, USB power meter, 2nd Waveshare reference node, ESD strap) into the BOM query; added a learning-sequenced build-order section to the POC concept.
+
+## [2026-06-22] query | POC BOM — added vetted Amazon picks for learning tools
+- pages touched: queries/poc-hardware-bom.md
+- notes: vetted current Amazon SKUs (web, June 2026) for the learning-tool additions from the unknown-unknowns discovery: HiLetgo 24MHz 8ch logic analyzer (B077LSG5P2), Waveshare RP2350-CAN reference node (B0F4JH65HY), MakerHawk AT34 USB power meter (B07FMQZVW2), iFixit ESD strap (B00B2T9C8Y). ~$50 picks subtotal.
