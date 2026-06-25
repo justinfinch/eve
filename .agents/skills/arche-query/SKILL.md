@@ -30,7 +30,8 @@ Beyond direct "query the Arche" questions, treat this skill as the **cold-start 
 5. **Spec / architecture gap signal.** When the question is framed for building a feature, route to the upstream gap first:
    - If it's about **what to build / requirements** ("what should we build for X", "what are the requirements for Y", "scope feature Z") AND no relevant `spec-<feature>` page exists in `specs/`, surface that gap: *"The Arche has no spec filed for this feature. Want to run `/arche-specify` to grill the WHAT/WHY and file a spec before design starts?"*
    - If it's about **how to build / design** ("how should we build X", "what's the right approach for Y", "design a Z") AND no relevant ARD/SAD/ADR concept page exists, surface that gap: *"The Arche has no decision filed for this. Want to run `/arche-architect` to grill the design and file ARD/SAD/ADRs before planning starts?"*
-   - Suggest; do not auto-invoke. If both gaps are open, recommend `/arche-specify` first (it feeds `/arche-architect`).
+   - If it's about **sequencing the build** ("plan this", "break it into tasks", "implementation plan for X") AND an accepted `spec-<feature>` plus covering SAD/ADRs already exist but no `plan-<feature>` page does, surface that: *"The spec and architecture are filed but there's no plan. Want to run `/arche-plan` to decompose it into an executable plan?"* (`/arche-plan` will itself gap-check the architecture and route back to `/arche-architect` if a decision is missing.)
+   - Suggest; do not auto-invoke. The pipeline is `/arche-specify` → `/arche-architect` → `/arche-plan`; recommend the earliest open gap first (a missing spec before a missing decision before a missing plan).
 6. **Offer to file the synthesis.** If the answer is non-trivial and reusable, ask: "Want me to file this as `queries/<slug>.md`?" Default: do not file unless asked or unless the question itself was framed as an Arche investigation.
 
 ## Filing a query back

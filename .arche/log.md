@@ -58,3 +58,7 @@ Append-only. Newest entries at the bottom. See [SCHEMA.md](SCHEMA.md) for entry 
 ## [2026-06-22] specify | Project Foundation — POC repository skeleton
 - pages touched: specs/spec-project-foundation.md, concepts/sad-mini-molecule-poc.md, index.md
 - notes: spec-project-foundation — first POC increment as a trivial end-to-end vertical slice (contract → simulator advertises minimal self-ID → web displays it), single-source-of-truth contract banked day one (generated consumer + drift check), firmware build-only, hardware-free. 8 FRs, 6 SCs, 0 open clarifications (5 resolved). Grounded in SAD/ARD + 4 ADRs + hardware-literacy concept. SAD back-links to the spec. WHAT/WHY only — HOW deferred to existing SAD/ADRs.
+
+## [2026-06-25] migrate | Arche upgraded to current schema (plan era + agent-context registration)
+- pages touched: SCHEMA.md, index.md, AGENTS.md, CLAUDE.md, plans/.gitkeep
+- notes: added plan page type (page-types row, Implementation-plans subsection, frontmatter type-enum + plan-only `spec:` field + status/superseded_by/context_pages coverage + plan frontmatter paragraph, framing-block bullet + revised execution-state carve-out, `plan` log op, plan operations-summary entry, index Plans section); created plans/ dir; registered Arche as first-class context source (snippet appended to AGENTS.md, @AGENTS.md bridge created in CLAUDE.md for Claude Code). Content pages left untouched.

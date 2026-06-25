@@ -1,7 +1,7 @@
 ---
 type: index
 created: 2026-06-16
-updated: 2026-06-22
+updated: 2026-06-25
 ---
 
 # Arche Index
@@ -42,6 +42,10 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 ## Specs
 
 - [Project Foundation](specs/spec-project-foundation.md) — first increment: a trivial end-to-end seam (contract → simulator → web shows self-ID), generated single-source-of-truth contract, firmware build-only, no hardware. The skeleton Rung 1 builds from. `spec` `poc` `foundation` `skeleton`
+
+## Plans
+
+None yet. Run /arche-plan to add the first one.
 
 ## Queries
 

@@ -1,6 +1,6 @@
 ---
 name: arche-lint
-description: Audit the project's Arche at ./.arche/ for health. Finds contradictions flagged during ingest, stale dates, orphan pages with no inbound links, broken or missing cross-references, frontmatter drift, coverage gaps, and discovery-promotion drift (top ideas never filed back); suggests next investigations. Reports findings — does not auto-fix without confirmation. Use when the user says "lint the Arche", "Arche health check", "audit the Arche", or after a batch of ingests or discovery sessions when they want a tidy-up.
+description: Audit the project's Arche at ./.arche/ for health. Finds contradictions flagged during ingest, stale dates, orphan pages with no inbound links, broken or missing cross-references, frontmatter drift, coverage gaps, discovery-promotion drift (top ideas never filed back), and whether the Arche is registered in the repo's agent context files so coding agents pick it up; suggests next investigations. Reports findings — does not auto-fix without confirmation. Use when the user says "lint the Arche", "Arche health check", "audit the Arche", or after a batch of ingests or discovery sessions when they want a tidy-up.
 ---
 
 # arche-lint
@@ -25,6 +25,9 @@ Run these against every page under `./.arche/`:
 7. **Index/log integrity.** Every page in `./.arche/{sources,entities,concepts,queries,discoveries}/` should appear in `index.md`. Every `ingest`/`query`/`discovery` entry in `log.md` should reference pages that exist. Flag mismatches both directions.
 8. **Coverage gaps.** Concepts that are referenced from other pages but have no page of their own → flag as candidates to create. Entities mentioned in ≥3 sources but with thin entity pages (<5 lines of body) → flag for expansion.
 9. **Discovery promotion drift.** For every `discoveries/*.md` page older than 14 days, check that at least one concept or entity page lists it in their `sources:` frontmatter (i.e., a top idea was actually filed back). Discoveries with zero promoted pages → flag with note "promotion never filed — was that intentional, or did the session end before Phase 4 wrote back?". Skip this check if the user explicitly chose "self-contained discovery" in the session.
+10. **Agent-context registration.** Grep the repo's agent context files (`AGENTS.md`, `CLAUDE.md`, `.cursorrules` / `.cursor/rules/*.md`, `.windsurfrules`, `.github/copilot-instructions.md`) for the marker `<!-- arche-context-source -->`. Two failure modes:
+    - **Not registered** — no context file carries the marker. Flag: "Arche isn't wired in as a first-class context source — coding agents won't reliably consult it. Run `/arche-init` (migration mode) to register it." Common for Arches created before agent-context registration existed.
+    - **Claude Code can't see it** — a file (typically `AGENTS.md`) carries the marker, but `CLAUDE.md` neither carries the marker nor imports the marked file via `@AGENTS.md`. Claude Code reads only `CLAUDE.md`, so flag: "Registered for other agents but not bridged to Claude Code — add an `@AGENTS.md` import to `CLAUDE.md` (or re-run `/arche-init` migration)." Easy to miss because non-Claude agents pick it up fine.
 
 ## Report format
 
