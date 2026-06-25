@@ -445,7 +445,7 @@ In `crates/contract/Cargo.toml`, replace the `[dependencies]` and `[features]` s
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
 tsify-next = { version = "0.5", optional = true }
-wasm-bindgen = { version = "0.2.100", optional = true }  # must equal devbox wasm-bindgen-cli version
+wasm-bindgen = { version = "=0.2.100", optional = true }  # EXACT pin — must equal devbox wasm-bindgen-cli version (caret "0.2.100" drifts to a newer patch and breaks the CLI match)
 
 [dev-dependencies]
 serde_json = "1"
