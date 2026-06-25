@@ -6,7 +6,14 @@ use alloc::string::String;
 use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "codegen")]
+use tsify_next::Tsify;
+#[cfg(feature = "codegen")]
+use wasm_bindgen::prelude::wasm_bindgen;
+
 /// The molecule's self-description — the spine every later rung extends.
+#[cfg_attr(feature = "codegen", derive(Tsify))]
+#[cfg_attr(feature = "codegen", tsify(into_wasm_abi, from_wasm_abi))]
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct SelfId {
     pub id: String,
