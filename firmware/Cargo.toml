@@ -1,0 +1,15 @@
+[workspace]
+
+[package]
+name = "firmware"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+contract = { path = "../crates/contract", default-features = false }
+
+embassy-executor = { version = "0.7", features = ["arch-cortex-m", "executor-thread"] }
+embassy-rp = { version = "0.4", features = ["rp235xa", "time-driver", "critical-section-impl"] }
+cortex-m-rt = "0.7"
+panic-halt = "1"
+embedded-alloc = "0.6"
