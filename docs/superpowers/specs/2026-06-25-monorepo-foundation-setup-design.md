@@ -2,7 +2,6 @@
 
 **Date:** 2026-06-25
 **Status:** Approved (brainstorming) → ready for implementation plan
-**Realizes:** [Spec — Project Foundation](../../../.arche/specs/spec-project-foundation.md) (the WHAT/WHY)
 **Descends from:** [SAD — Mini-Molecule POC](../../../.arche/concepts/sad-mini-molecule-poc.md) + its ADRs (the settled HOW)
 
 ## Purpose
@@ -142,7 +141,6 @@ them, not that they pass independently).
 
 ## See also
 
-- [Spec — Project Foundation](../../../.arche/specs/spec-project-foundation.md)
 - [SAD — Mini-Molecule POC](../../../.arche/concepts/sad-mini-molecule-poc.md)
 - [ADR — Message contract via tsify](../../../.arche/concepts/adr-message-contract-tsify.md)
 - [ADR — Phased control plane](../../../.arche/concepts/adr-phased-control-plane.md)
