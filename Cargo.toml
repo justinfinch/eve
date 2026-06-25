@@ -1,4 +1,4 @@
 [workspace]
 resolver = "2"
-members = ["crates/contract"]
+members = ["crates/contract", "crates/simulator"]
 exclude = ["firmware", "web"]
