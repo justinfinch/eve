@@ -861,11 +861,13 @@ async fn main(_spawner: Spawner) {
 
 - [ ] **Step 6: Verify the firmware builds board-free**
 
-Run:
+Run (build with CWD = `firmware`, NOT `--manifest-path`: `devbox run` forces CWD to the repo root, and cargo only reads `firmware/.cargo/config.toml` — which sets the `thumbv8m` default target — when CWD is `firmware`. `--manifest-path firmware/Cargo.toml` from the repo root would instead build for the x86_64 host and fail on Cortex-M intrinsics):
 ```bash
-devbox run -- cargo build --manifest-path firmware/Cargo.toml
+devbox run -- bash -c 'cd firmware && cargo build'
 ```
-Expected: PASS — links an ELF for `thumbv8m.main-none-eabihf` with no board attached. (This is the Embassy-ramp gate. If it fails on linker/boot sections or missing `rp235xa`, iterate per the Step 1/Step 2 notes — sync `Cargo.toml`, `memory.x`, and link args with Embassy's current `examples/rp235x` for your pinned revision — until green.)
+Expected: PASS — links an ELF for `thumbv8m.main-none-eabihf` with no board attached; `file firmware/target/thumbv8m.main-none-eabihf/debug/firmware` reports `ELF 32-bit … ARM`. (This is the Embassy-ramp gate. If it fails on linker/boot sections or missing `rp235xa`, iterate per the Step 1/Step 2 notes — sync `Cargo.toml`, `memory.x`, and link args with Embassy's current `examples/rp235x` for your pinned revision — until green.)
+
+> Implementation note (recorded from execution): the committed `firmware/Cargo.toml` is the authoritative working version set. Because the repo pins rustc `1.85.0`, Embassy had to be pinned to the **0.4 line** (`embassy-executor` 0.7) with `critical-section-impl`, `fixed` pinned to 1.30.0 and `heapless` 0.8 (newer releases require rustc ≥1.87). A root `.cargo/config.toml` is deliberately NOT used (it would force the host workspace to cross-compile) — the firmware target config lives only in `firmware/.cargo/config.toml`.
 
 - [ ] **Step 7: Verify the host workspace still ignores firmware**
 
@@ -905,7 +907,7 @@ build:
     #!/usr/bin/env bash
     set -euo pipefail
     cargo build --workspace                                   # contract + simulator
-    cargo build --manifest-path firmware/Cargo.toml           # firmware (build-only)
+    (cd firmware && cargo build)                              # firmware (build-only; CWD=firmware so its .cargo/config.toml sets the thumbv8m target)
     npm --prefix web ci || npm --prefix web install
     npm --prefix web run build                                # web
     echo "all four parts built"
@@ -930,7 +932,7 @@ check:
     just build
     just check-gen
     cargo clippy --workspace -- -D warnings
-    cargo clippy --manifest-path firmware/Cargo.toml -- -D warnings
+    (cd firmware && cargo clippy -- -D warnings)             # CWD=firmware for the thumbv8m target config
     cargo test --workspace
     npm --prefix web test
     echo "check passed"
