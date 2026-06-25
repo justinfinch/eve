@@ -150,12 +150,18 @@ git commit -m "chore: pin toolchain + targets, add just/wasm-bindgen, justfile s
 
 - [ ] **Step 1: Create the host workspace root manifest**
 
-Create `Cargo.toml`:
+Create `Cargo.toml` (list only `contract` now — Task 3 adds `simulator` to `members` when it creates that crate; cargo errors if a listed member directory does not yet exist):
 ```toml
 [workspace]
 resolver = "2"
-members = ["crates/contract", "crates/simulator"]
+members = ["crates/contract"]
 exclude = ["firmware", "web"]
+```
+
+Also append Rust build output to `.gitignore` (it is not yet ignored):
+```
+# Rust build output
+target/
 ```
 
 - [ ] **Step 2: Create the contract crate manifest**
@@ -168,8 +174,10 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-# rlib for firmware/simulator; cdylib so wasm-bindgen can process it during codegen.
-crate-type = ["cdylib", "rlib"]
+# rlib for firmware/simulator. The wasm cdylib needed for codegen is produced
+# on demand in Task 4 via `cargo rustc --crate-type cdylib` (a no_std cdylib
+# cannot link on the host, so cdylib must NOT live in this manifest).
+crate-type = ["rlib"]
 
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
@@ -276,9 +284,17 @@ git commit -m "feat(contract): SelfId single-source-of-truth type (no_std + serd
 - Consumes: `contract::SelfId` (Task 2), with the `std` feature.
 - Produces: `simulator::self_id() -> contract::SelfId` (the canonical advertised value); `simulator::serve(listener: tokio::net::TcpListener) -> impl Future<Output = ()>` (accept loop that, per connection, sends exactly one `Message::Text` containing `serde_json::to_string(&self_id())`). The binary binds `127.0.0.1:8765`. Consumed by the web app (Task 6) and `just dev` (Task 8).
 
-- [ ] **Step 1: Create the simulator crate manifest**
+- [ ] **Step 1: Register the simulator crate in the workspace, then create its manifest**
 
-Create `crates/simulator/Cargo.toml`:
+First add `crates/simulator` to the host workspace `members` in the root `Cargo.toml` (Task 2 left it listing only `crates/contract`):
+```toml
+[workspace]
+resolver = "2"
+members = ["crates/contract", "crates/simulator"]
+exclude = ["firmware", "web"]
+```
+
+Then create `crates/simulator/Cargo.toml`:
 ```toml
 [package]
 name = "simulator"
@@ -429,7 +445,7 @@ In `crates/contract/Cargo.toml`, replace the `[dependencies]` and `[features]` s
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
 tsify-next = { version = "0.5", optional = true }
-wasm-bindgen = { version = "0.2", optional = true }
+wasm-bindgen = { version = "0.2.100", optional = true }  # must equal devbox wasm-bindgen-cli version
 
 [dev-dependencies]
 serde_json = "1"
@@ -464,11 +480,11 @@ pub struct SelfId {
 
 - [ ] **Step 3: Verify the codegen build compiles to wasm**
 
-Run:
+Run (note `cargo rustc … --crate-type cdylib` — this builds a cdylib **only** for this wasm invocation, without putting cdylib in `Cargo.toml`, so host builds stay clean):
 ```bash
-devbox run -- cargo build -p contract --no-default-features --features codegen --target wasm32-unknown-unknown
+devbox run -- cargo rustc -p contract --no-default-features --features codegen --target wasm32-unknown-unknown --crate-type cdylib
 ```
-Expected: PASS — produces `target/wasm32-unknown-unknown/debug/contract.wasm`. (If `tsify-next` `0.5` / `wasm-bindgen` `0.2` versions are incompatible with each other or with the devbox `wasm-bindgen-cli`, align all three: set the `wasm-bindgen` dependency to the exact version printed by `devbox run -- wasm-bindgen --version`, and pick the `tsify-next` release that depends on that `wasm-bindgen`. Re-run until green.)
+Expected: PASS — produces `target/wasm32-unknown-unknown/debug/contract.wasm`. (Pin the `wasm-bindgen` dependency to exactly the devbox `wasm-bindgen-cli` version — `0.2.100` — so the CLI and crate match. If `tsify-next` `0.5` / `wasm-bindgen` `0.2.100` versions are incompatible with each other or with the devbox `wasm-bindgen-cli`, align all three: set the `wasm-bindgen` dependency to the exact version printed by `devbox run -- wasm-bindgen --version`, and pick the `tsify-next` release that depends on that `wasm-bindgen`. Re-run until green.)
 
 - [ ] **Step 4: Add the `gen` recipe to the justfile**
 
@@ -479,8 +495,8 @@ gen:
     #!/usr/bin/env bash
     set -euo pipefail
     out="$(mktemp -d)"
-    cargo build -p contract --no-default-features --features codegen \
-        --target wasm32-unknown-unknown
+    cargo rustc -p contract --no-default-features --features codegen \
+        --target wasm32-unknown-unknown --crate-type cdylib
     wasm-bindgen --target bundler --out-dir "$out" --out-name contract \
         target/wasm32-unknown-unknown/debug/contract.wasm
     mkdir -p web/src
