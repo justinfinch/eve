@@ -21,3 +21,14 @@ gen:
     } > web/src/contract.gen.ts
     rm -rf "$out"
     echo "wrote web/src/contract.gen.ts"
+
+# Drift guard: regenerate and fail if the committed type is stale (SC-4).
+check-gen:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just gen
+    if ! git diff --exit-code -- web/src/contract.gen.ts; then
+        echo "ERROR: web/src/contract.gen.ts is stale — run \`just gen\` and commit." >&2
+        exit 1
+    fi
+    echo "contract.gen.ts is up to date"
