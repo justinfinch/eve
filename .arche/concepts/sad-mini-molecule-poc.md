@@ -2,7 +2,7 @@
 type: concept
 title: SAD — Mini-Molecule POC
 created: 2026-06-22
-updated: 2026-06-22
+updated: 2026-06-25
 tags: [architecture, sad, poc, mini-molecule, software, rust, embassy, tsify, ai]
 sources: [concepts/ard-mini-molecule-poc.md, concepts/poc-mini-molecule-cloud-workbench.md, concepts/adom-technical-architecture.md, sources/adom-decoded-and-poc-plan.md]
 status: accepted
@@ -99,7 +99,6 @@ Every load-bearing decision has its own ADR.
 
 ## See also
 
-- [Spec — Project Foundation](../specs/spec-project-foundation.md) — the first increment realizing this SAD's Deployment & Build views as a trivial end-to-end seam.
 - [ARD — Mini-Molecule POC](ard-mini-molecule-poc.md) — requirements this solution satisfies.
 - [POC: Mini-Molecule + Cloud Workbench](poc-mini-molecule-cloud-workbench.md) — the originating concept.
 - [Adom Technical Architecture](adom-technical-architecture.md) — the stack mirrored.

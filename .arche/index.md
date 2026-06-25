@@ -39,14 +39,6 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 - [ADR — AI constrained planner](concepts/adr-ai-constrained-planner.md) — AI emits a capability-schema'd, validated, sim-first test plan; never a raw actuator. `architecture` `adr` `poc`
 - [ADR — Reproducible run artifacts](concepts/adr-reproducible-run-artifacts.md) — immutable run artifacts, replayable against the simulator. `architecture` `adr` `poc`
 
-## Specs
-
-- [Project Foundation](specs/spec-project-foundation.md) — first increment: a trivial end-to-end seam (contract → simulator → web shows self-ID), generated single-source-of-truth contract, firmware build-only, no hardware. The skeleton Rung 1 builds from. `spec` `poc` `foundation` `skeleton`
-
-## Plans
-
-None yet. Run /arche-plan to add the first one.
-
 ## Queries
 
 - [What Hardware Do I Need to Buy (POC BOM)](queries/poc-hardware-bom.md) — concrete parts list for the Mini-Molecule POC: Pico 2, MCP2515, ADS1220, supporting parts; CH446Q for optional Concept B. `poc` `bom` `hardware`

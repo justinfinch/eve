@@ -20,14 +20,6 @@ _None yet._
 
 _None yet._
 
-## Specs
-
-_None yet. Run `/arche-specify` to specify a feature (WHAT/WHY) grounded in the Arche._
-
-## Plans
-
-_None yet. Run `/arche-plan` to turn an accepted spec into an executable implementation plan._
-
 ## Queries
 
 _None yet._

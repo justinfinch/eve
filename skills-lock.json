@@ -23,7 +23,7 @@
       "source": "justinfinch/skills",
       "sourceType": "github",
       "skillPath": "skills/arche-init/SKILL.md",
-      "computedHash": "489a6ab419b6878d1a9a7c9e3c8cf867a3ab75ac6af33123d109d0f304230690"
+      "computedHash": "27bca8c9d385f289626d340f970e15e5cc0e37bd4e3681bd736351847311019e"
     },
     "arche-lint": {
       "source": "justinfinch/skills",
@@ -35,7 +35,7 @@
       "source": "justinfinch/skills",
       "sourceType": "github",
       "skillPath": "skills/arche-query/SKILL.md",
-      "computedHash": "76e92cf7e4679b3fc42fb438348a8963d095a68f5b0d3acbc61054a5f3952124"
+      "computedHash": "f8f59b8fd045d9dbf91c2ca8b44bc05816fc28aef12e3146cfda5573ffad7b8b"
     },
     "arche-specify": {
       "source": "justinfinch/skills",

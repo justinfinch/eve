@@ -7,7 +7,7 @@ description: Bootstrap an Arche at ./.arche/ in the current project using Karpat
 
 Bootstrap or migrate an Arche at `./.arche/`.
 
-This skill owns only the Arche's **system files** (`SCHEMA.md`, `index.md`, `log.md`) and the directory tree. Each operation skill (`/arche-ingest`, `/arche-query`, `/arche-specify`, `/arche-plan`, `/arche-discover`, `/arche-architect`) ships its own page templates and reads them from its own skill directory at runtime — `arche-init` does not copy templates into the Arche and does not need updating when a new Arche operation skill is added.
+This skill owns only the Arche's **system files** (`SCHEMA.md`, `index.md`, `log.md`) and the directory tree. Each operation skill (`/arche-ingest`, `/arche-query`, `/arche-discover`, `/arche-architect`, `/arche-tell`) ships its own page templates and reads them from its own skill directory at runtime — `arche-init` does not copy templates into the Arche and does not need updating when a new Arche operation skill is added.
 
 The path is **dotted** (`./.arche/` not `./arche/`) by convention with other agent-tooling directories (`.claude/`, `.cursor/`, `.vscode/`) and to avoid collision with project content folders. The Arche is curated content but has substantial machine-maintained scaffolding (index, log, frontmatter, lint) — the dot signals that.
 
@@ -30,8 +30,6 @@ The path is **dotted** (`./.arche/` not `./arche/`) by convention with other age
      sources/         # LLM-written summaries that cite raw/ or external URLs
      entities/
      concepts/
-     specs/           # feature specifications — WHAT/WHY (see /arche-specify)
-     plans/           # implementation plans — durable execution blueprints (see /arche-plan)
      queries/
      discoveries/     # captured discovery / ideation sessions (see /arche-discover)
      stories/         # communication artifacts (see /arche-tell) — the .md source pages
@@ -62,18 +60,7 @@ The Arche already has content. The job is **additive** — never rewrite a conte
    - **Frontmatter fields** — `status:` and `superseded_by:` apply to ARD, SAD, and ADR concept pages (older Arches may scope these to ADR only)
    - **`architect` log op** — if SCHEMA's ops list does not include `architect`, the `/arche-architect` skill cannot file sessions; patch.
    - **Architect operation summary** — if SCHEMA's operations summary lacks the `architect` entry alongside `discovery`, patch.
-   - **Spec page type** — if SCHEMA's page-types table does not include a `spec` row pointing at `specs/<slug>.md`, OR the "Feature specs (spec)" subsection (slug `spec-<feature>`, body-section table, tech-agnostic / testable-requirement discipline, `[NEEDS CLARIFICATION]` cap, quality gate) is missing under Page types, the `/arche-specify` skill cannot file specs; patch.
-   - **Spec status/supersession + framing** — if `status:` / `superseded_by:` are not documented as applying to spec pages, if `spec` is missing from the `type:` enum, or if the "What belongs here" framing lacks the Feature-specifications bullet, patch.
-   - **`specify` log op** — if SCHEMA's ops list does not include `specify`, patch.
-   - **Specify operation summary** — if SCHEMA's operations summary lacks the `specify` entry alongside `discovery`, patch.
-   - **Specs index section** — if `index.md` lacks a `## Specs` section, add it (with the "None yet. Run /arche-specify..." stub).
-   - **`specs/` subdir** — create with a `.gitkeep` if missing.
-   - **Plan page type** — if SCHEMA's page-types table does not include a `plan` row pointing at `plans/<slug>.md`, OR the "Implementation plans (plan)" subsection (slug `plan-<feature>`, body-section table, decomposition/traceability/no-placeholder discipline, architect-gate clause, durable-blueprint-vs-transient-state rule) is missing under Page types, the `/arche-plan` skill cannot file plans; patch.
-   - **Plan frontmatter + framing** — if the `type:` enum omits `plan`, if the `spec:` (plan-only) frontmatter field is undocumented, if `status:` / `superseded_by:` / `context_pages:` are not documented as applying to plan pages, or if the "What belongs here" framing lacks the Implementation-plans bullet and the revised "does not capture" carve-out (durable plan-of-record belongs; transient execution state does not), patch.
-   - **`plan` log op** — if SCHEMA's ops list does not include `plan`, patch.
-   - **Plan operation summary** — if SCHEMA's operations summary lacks the `plan` entry alongside `specify`, patch.
-   - **Plans index section** — if `index.md` lacks a `## Plans` section, add it (with the "None yet. Run /arche-plan..." stub).
-   - **`plans/` subdir** — create with a `.gitkeep` if missing.
+   - **Retired spec/plan page types** — if the existing SCHEMA still defines `spec` or `plan` page types, `specs/`/`plans/` rows, the `specify`/`plan` log ops, or the `## Specs` / `## Plans` index sections, flag them for the user as **removed conventions**. These were retired when feature-spec and implementation-plan work moved to the team's own dev-methodology skills (which read the Arche for grounding). Do not auto-delete — existing `specs/`/`plans/` content pages need the user's manual attention (migrate them out, or leave them as legacy). Offer to drop the now-unused schema definitions and index stubs.
    - **Story page type** — if SCHEMA's page-types table does not include a `story` row pointing at `stories/<slug>.md`, the `/arche-tell` skill cannot file artifacts; patch.
    - **Story frontmatter fields** — if the frontmatter spec does not document `audience`, `action_ask`, `framework`, `format`, and `html` (story-page-only fields), patch.
    - **`story` log op** — if SCHEMA's ops list does not include `story`, patch.
@@ -124,8 +111,8 @@ The Arche already has content. The job is **additive** — never rewrite a conte
 
 ## Notes
 
-- The schema is the source of truth for conventions — `/arche-ingest`, `/arche-query`, `/arche-specify`, `/arche-plan`, `/arche-lint`, `/arche-discover`, and `/arche-architect` all read `.arche/SCHEMA.md` before acting. If the user later changes conventions, they edit the schema; the operation skills follow.
-- Page templates (for `sources/`, `entities/`, `concepts/`, `specs/`, `plans/`, `queries/`, `discoveries/`) live next to the skills that write those page types. `arche-init` deliberately does not own them — that keeps init decoupled from the set of operation skills.
+- The schema is the source of truth for conventions — `/arche-ingest`, `/arche-query`, `/arche-lint`, `/arche-discover`, `/arche-architect`, and `/arche-tell` all read `.arche/SCHEMA.md` before acting. If the user later changes conventions, they edit the schema; the operation skills follow.
+- Page templates (for `sources/`, `entities/`, `concepts/`, `queries/`, `discoveries/`, `stories/`) live next to the skills that write those page types. `arche-init` deliberately does not own them — that keeps init decoupled from the set of operation skills.
 - Do not embed Arche content in the schema. The schema describes *how* pages are written, not what they contain.
 - **Agent-context registration is what makes the Arche first-class.** A coding agent won't reliably consult `./.arche/` unless its always-loaded context file says to. Bootstrap (and migration) writes the `<!-- arche-context-source -->` snippet into the repo's context file(s) so the Arche is picked up automatically — the user shouldn't have to remember to invoke `/arche-query`. The snippet is agent-neutral (same approach as `devbox-add`'s source-of-truth snippet). This is `arche-init`'s own policy snippet about the artifact it bootstraps — not a page template owned by another operation skill.
 - **No agent detection — bridge instead.** `AGENTS.md` is the single source of truth; we never branch on "which coding agent is this". The one wrinkle is that **Claude Code reads `CLAUDE.md`, not `AGENTS.md`** ([memory docs](https://code.claude.com/docs/en/memory)), so a repo with only `AGENTS.md` would be invisible to it. Rather than detect Claude Code, we always add a `CLAUDE.md` that imports `AGENTS.md` via `@AGENTS.md` — the Anthropic-documented bridge. One import line, no duplicated content (so no drift), and non-Claude agents harmlessly ignore the extra file. Tool files without import syntax (`.cursorrules`, `.windsurfrules`, Copilot) get the snippet inline, but only if they already exist.

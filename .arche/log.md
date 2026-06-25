@@ -62,3 +62,11 @@ Append-only. Newest entries at the bottom. See [SCHEMA.md](SCHEMA.md) for entry 
 ## [2026-06-25] migrate | Arche upgraded to current schema (plan era + agent-context registration)
 - pages touched: SCHEMA.md, index.md, AGENTS.md, CLAUDE.md, plans/.gitkeep
 - notes: added plan page type (page-types row, Implementation-plans subsection, frontmatter type-enum + plan-only `spec:` field + status/superseded_by/context_pages coverage + plan frontmatter paragraph, framing-block bullet + revised execution-state carve-out, `plan` log op, plan operations-summary entry, index Plans section); created plans/ dir; registered Arche as first-class context source (snippet appended to AGENTS.md, @AGENTS.md bridge created in CLAUDE.md for Claude Code). Content pages left untouched.
+
+## [2026-06-25] migrate | Arche schema reverted to current — spec/plan page types retired
+- pages touched: SCHEMA.md, index.md, AGENTS.md
+- notes: dropped the retired `spec` and `plan` conventions from SCHEMA (page-types rows, "Feature specs (spec)" + "Implementation plans (plan)" sections, framing-block bullets restored to dev-methodology carve-out, `spec`/`plan` removed from type enum + plan-only `spec:`/spec+plan frontmatter clauses, status/superseded_by/context_pages scoped back to architecture+discovery, `specify`/`plan` log ops + operations-summary entries removed, index section list trimmed); removed empty `## Plans` stub from index.md; refreshed stale `<!-- arche-context-source -->` snippet in AGENTS.md (removed arche-specify/arche-plan + specs/plans page references, added dev-methodology-grounding note). Manual attention left to user: specs/spec-project-foundation.md content page + its `## Specs` index entry, and the empty plans/ dir. No content pages touched.
+
+## [2026-06-25] manual | Deleted retired spec page — spec-project-foundation
+- pages touched: index.md, concepts/sad-mini-molecule-poc.md
+- notes: deleted specs/spec-project-foundation.md (the lone legacy spec content page) at user request following the spec/plan retirement migration; removed its `## Specs` index entry and the SAD's `## See also` back-link (no broken links remain); removed the now-empty specs/ and plans/ directories. SAD `updated:` bumped.
