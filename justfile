@@ -32,3 +32,34 @@ check-gen:
         exit 1
     fi
     echo "contract.gen.ts is up to date"
+
+# Build all four parts; fails if ANY one part breaks (SC-5).
+build:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cargo build --workspace                                   # contract + simulator
+    (cd firmware && cargo build)                              # firmware (build-only; CWD=firmware so its .cargo/config.toml sets the thumbv8m target)
+    npm --prefix web ci || npm --prefix web install
+    npm --prefix web run build                                # web
+    echo "all four parts built"
+
+# CI / acceptance entrypoint: build everything, guard drift, lint, test.
+check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just build
+    just check-gen
+    cargo clippy --workspace -- -D warnings
+    (cd firmware && cargo clippy -- -D warnings)             # CWD=firmware for the thumbv8m target config
+    cargo test --workspace
+    npm --prefix web test
+    echo "check passed"
+
+# Run the simulator and the web dev server together — the "see the id in the browser" scenario.
+dev:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cargo run -p simulator &
+    SIM_PID=$!
+    trap "kill $SIM_PID 2>/dev/null || true" EXIT
+    npm --prefix web run dev

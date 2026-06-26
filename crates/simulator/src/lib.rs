@@ -26,6 +26,5 @@ async fn handle(stream: TcpStream) {
         Err(_) => return,
     };
     let json = serde_json::to_string(&self_id()).expect("SelfId serializes");
-    // `.into()` adapts String to whatever the tungstenite Text payload type is.
-    let _ = ws.send(Message::Text(json.into())).await;
+    let _ = ws.send(Message::Text(json)).await;
 }
