@@ -1,7 +1,7 @@
 ---
 type: index
 created: 2026-06-16
-updated: 2026-06-17
+updated: 2026-06-25
 ---
 
 # Arche Index
@@ -28,6 +28,16 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 - [AI-Native EDA](concepts/ai-native-eda.md) — Diode/JITX/Quilter/Flux/Cofactr race; LLMs hallucinate and can fry boards. `prior-art` `competitors`
 - [Automated Remote Bring-Up](concepts/automated-remote-bring-up.md) — the genuinely unsolved white space: end-to-end remote test. `white-space` `remote-test`
 - [POC: Mini-Molecule + Cloud Workbench](concepts/poc-mini-molecule-cloud-workbench.md) — recommended desk-scale POC (Concepts A–D) mirroring Adom's stack. `poc` `interview-prep`
+- [Learning Hardware as a Software Dev](concepts/learning-hardware-as-a-software-dev.md) — the POC's real deliverable is hardware literacy, not a working rig: intuition traps, the misattribution meta-skill, a learning-sequenced ladder. `poc` `hardware-literacy` `software-dev`
+- [ARD — Mini-Molecule POC](concepts/ard-mini-molecule-poc.md) — software requirements for the POC: dual success metric (works + Adom-faithful), five pillars, quality-attribute scenarios. `architecture` `ard` `poc`
+- [SAD — Mini-Molecule POC](concepts/sad-mini-molecule-poc.md) — software solution: transport-agnostic 4-layer control plane, contract-as-invariant seam, simulator-as-peer, AI planner, fitness functions. `architecture` `sad` `poc`
+- [ADR — Phased control plane](concepts/adr-phased-control-plane.md) — Web Serial v1 → Rust bridge v2; the message contract is the invariant, not the topology. `architecture` `adr` `poc`
+- [ADR — Message contract via tsify](concepts/adr-message-contract-tsify.md) — Rust serde types → TS via tsify (single source of truth); JSON v1 / postcard-rpc v2 at the embedded seam. `architecture` `adr` `poc`
+- [ADR — Capability registry](concepts/adr-capability-registry.md) — self-describing capability model; browser UI renders from the capability list. `architecture` `adr` `poc`
+- [ADR — Firmware Rust + Embassy](concepts/adr-firmware-rust-embassy.md) — Rust + Embassy on RP2350; fidelity over ramp-cost, consciously. `architecture` `adr` `poc`
+- [ADR — Device simulator](concepts/adr-device-simulator.md) — protocol-level Rust simulator sharing the contract; CI, hardware-free dev, AI sandbox. `architecture` `adr` `poc`
+- [ADR — AI constrained planner](concepts/adr-ai-constrained-planner.md) — AI emits a capability-schema'd, validated, sim-first test plan; never a raw actuator. `architecture` `adr` `poc`
+- [ADR — Reproducible run artifacts](concepts/adr-reproducible-run-artifacts.md) — immutable run artifacts, replayable against the simulator. `architecture` `adr` `poc`
 
 ## Queries
 
@@ -35,8 +45,9 @@ Catalog of every page in this Arche. Read this first when answering queries. See
 
 ## Discoveries
 
-_None yet. Run `/arche-discover` to facilitate a discovery / ideation session._
+- [POC Unknown-Unknowns — Learning Hardware as a Software Dev](discoveries/poc-unknown-unknowns.md) — pre-mortem of the Mini-Molecule POC; 24 ideas across 5 themes; reframed the deliverable from "working rig" to "hardware literacy." `poc` `unknown-unknowns` `hardware-literacy`
 
 ## Stories
 
 - [What the POC Builds — A Visual Explainer](stories/poc-explainer-for-self.md) — scrollable narrative with a full architecture diagram: what each Concept (A–D) builds and what the full POC delivers. `poc` `explainer` `self`
+- [POC Hardware Manual — Build It, Understand It](stories/poc-hardware-manual-for-self.md) — bench report: per-part reference, arrival→bring-up ritual, rungs 0–6 with wiring + "what's happening in the silicon", and a suspect-physical-first diagnosis tree. Companion to the explainer. `poc` `hardware-manual` `self`

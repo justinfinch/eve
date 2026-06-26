@@ -4,7 +4,9 @@
     "rustup@latest",
     "nodejs@latest",
     "probe-rs-tools@latest",
-    "gh@latest"
+    "gh@latest",
+    "just@latest",
+    "wasm-bindgen-cli@latest"
   ],
   "env": {
     "GH_CONFIG_DIR": "$PWD/.gh"

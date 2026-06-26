@@ -1,6 +1,6 @@
 # Brainstorming Techniques
 
-61 creativity techniques across 10 categories. Adapted from BMAD-METHOD's `brain-methods.csv` (MIT-licensed).
+61 creativity techniques across 10 categories.
 
 ## Arche-leveraged techniques
 

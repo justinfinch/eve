@@ -22,12 +22,13 @@ This Arche captures **institutional context that does not live in the code**:
 This Arche **does not** capture:
 
 - Code documentation, API references, module diagrams — those live with the code (`docs/`, doc comments, generated references).
-- Per-task plans, in-flight TODOs, debugging notes, commit-by-commit history — those live in PR descriptions, commits, or your dev methodology's working artifacts.
+- Feature specs and implementation plans — the WHAT/WHY of a feature and its task decomposition belong to your dev methodology's own skills (e.g. spec-kit, superpowers), which *read* the Arche for grounding via the agent-context registration. The Arche supplies the institutional context they build on; it does not own the spec/plan artifacts themselves.
+- In-flight execution *state* — ticked checkboxes, in-progress TODOs, debugging notes, commit-by-commit history — those live in PR descriptions, commits, or your dev methodology's working artifacts.
 - Generated content (changelogs, dependency lists, build outputs).
 
 **Rule of thumb:** if a question is answered by *"read the code,"* it doesn't belong here. If a question is answered by *"ask the senior architect or product owner what we decided and why,"* it does.
 
-**How it plugs into dev workflows:** the Arche is *consumed* by agentic dev methodologies (superpowers, mattpocock skills, your own) during planning, design, and brainstorming phases — it surfaces ADRs, domain constraints, customer context, and prior research that should inform the work. It is **not** written to by coding sessions. Coding artifacts stay with the code.
+**How it plugs into dev workflows:** the Arche is *consumed* by your agentic dev/implementation skills during planning, design, and brainstorming phases — it surfaces ADRs, domain constraints, customer context, and prior research that should inform the work. It is **not** written to by coding sessions. Coding artifacts stay with the code.
 
 ## Three layers
 
@@ -99,6 +100,7 @@ raw: raw/foo.pdf                     # source pages only — points to the raw f
 url: https://...                     # source pages only — canonical URL if web-based
 status: proposed | accepted | superseded   # ARD, SAD, ADR concept pages
 superseded_by: concepts/adr-new.md   # ARD, SAD, ADR pages — when superseded, points to the replacement
+context_pages: [concepts/foo.md]     # discovery pages — the Arche pages loaded to ground the session
 audience: ...                        # story pages only — who the artifact is for
 action_ask: ...                      # story pages only — what the audience should do/decide/believe
 framework: pyramid | scqa | ...      # story pages only — narrative framework used

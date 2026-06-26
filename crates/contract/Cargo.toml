@@ -1,0 +1,21 @@
+[package]
+name = "contract"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+# rlib for firmware/simulator. cdylib added in Task 4 with codegen feature for wasm-bindgen.
+crate-type = ["rlib"]
+
+[dependencies]
+serde = { version = "1", default-features = false, features = ["derive", "alloc"] }
+tsify-next = { version = "0.5", optional = true }
+wasm-bindgen = { version = "=0.2.100", optional = true }  # must equal devbox wasm-bindgen-cli version
+
+[dev-dependencies]
+serde_json = "1"
+
+[features]
+default = []
+std = ["serde/std"]
+codegen = ["std", "dep:tsify-next", "dep:wasm-bindgen"]

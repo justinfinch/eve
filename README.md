@@ -87,6 +87,45 @@ Rather than reach for a generic microcontroller demo, I built directly on Adom's
 
 ---
 
+## Quickstart (Foundation)
+
+This repo's dev environment is managed by [devbox](https://www.jetify.com/devbox).
+From a clean checkout:
+
+1. Install [devbox](https://www.jetify.com/devbox) + [direnv](https://direnv.net), then `cd` into the repo (direnv auto-activates),
+   or prefix commands with `devbox run --`.
+2. First build (installs the pinned toolchain + targets automatically):
+
+   ```bash
+   devbox run -- just build
+   ```
+
+3. Run the full acceptance gate (build + drift guard + lint + tests):
+
+   ```bash
+   devbox run -- just check
+   ```
+
+4. See the molecule in the browser:
+
+   ```bash
+   devbox run -- just dev
+   ```
+
+   Open the printed Vite URL in Chrome — it shows the simulator's `id` and `name`.
+
+### Recipes
+
+| Recipe           | Does                                                            |
+|------------------|----------------------------------------------------------------|
+| `just gen`       | regenerate `web/src/contract.gen.ts` from the Rust contract    |
+| `just check-gen` | drift guard: fail if the generated type is stale               |
+| `just build`     | build all four parts (contract, simulator, web, firmware)      |
+| `just check`     | `build` + drift guard + clippy + tests — the CI/acceptance gate |
+| `just dev`       | run the simulator + web dev server (the primary scenario)      |
+
+---
+
 ## Design notes & research
 
 The thinking behind the project — how I decoded Adom's public stack, the prior-art landscape I worked through, and the parts list — lives under [`.arche/`](.arche/index.md):

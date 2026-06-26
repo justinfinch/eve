@@ -1,11 +1,19 @@
 ---
 name: arche-query
-description: Answer a question using the project's Arche at ./.arche/ — the Arche holds **institutional context** (business domain, SME knowledge, ARB-style architectural decisions, research) that the code doesn't carry. Reads index.md, walks to the relevant pages, synthesizes an answer with inline citations to Arche pages and their sources, and optionally files the synthesis back as queries/<slug>.md when the user wants it kept. Use when the user asks something that should be answered from their Arche, says "query the Arche" / "what does the Arche say about X", asks a question after having ingested sources, **OR** is about to plan / design / scope / brainstorm a feature in a repo with a ./.arche/ and could benefit from surfacing relevant ADRs, domain constraints, customer context, or prior research before the planning step runs. Fires as a cold-start orientation step alongside agentic dev methodologies (e.g. superpowers, mattpocock skills) — does not replace their planning/brainstorming/TDD skills, only feeds context into them.
+description: Answer a question using the project's Arche at ./.arche/ — institutional context (business, SME, ARB decisions, research) the code doesn't carry. Reads index.md, walks to the relevant pages, synthesizes a cited answer, optionally files it back as queries/<slug>.md. Use when the user asks something answerable from their Arche; says "query the Arche" / "what does the Arche say about X" / "take a look at our/the Arche" / "based on / given our Arche"; asks a question after ingesting sources; OR is about to plan, design, scope, brainstorm, set up a dev environment, tooling, or dependencies, or make any setup decision in a repo with a ./.arche/ that should be grounded in domain, architecture, or prior-research context — surfacing relevant ADRs, constraints, or prior research first. This includes being invoked from inside another skill (e.g. devbox-init, or any planning skill) whose instructions say to "look at the Arche" — surface the pages via this skill rather than reading ad hoc.
 ---
 
 # arche-query
 
 Answer a question from the project Arche.
+
+## When this fires
+
+Beyond direct "query the Arche" questions, treat this skill as the **cold-start orientation step** for any work in a repo that has a `./.arche/`:
+
+- A user instruction to "take a look at our Arche", "based on the Arche", or "given our Arche" — even when paired with an action ("…and set up X") — is a trigger. Run this skill, then proceed to the action with the surfaced context.
+- A planning / design / scoping / brainstorming step, or a setup decision (dev environment, tooling, dependencies) — surface relevant ADRs, constraints, and prior research *before* that step runs.
+- **Invoked from inside another skill** (e.g. `devbox-init`, or any planning skill) whose own instructions say to "look at the Arche": satisfy that instruction by invoking this skill, not by reading Arche pages ad hoc. This skill does not replace the host skill's planning/brainstorming/TDD work — it only feeds grounded context into it, then control returns to the host.
 
 ## Preflight
 
@@ -19,7 +27,10 @@ Answer a question from the project Arche.
 2. **Read the candidates.** For each candidate page, read the full file. Note the sources cited at each claim — you may need to read source summaries too if the question hinges on provenance.
 3. **Synthesize an answer.** Inline-cite every non-trivial claim with **both** the Arche page that synthesizes it and the underlying source page: `... per [Concept Name](../concepts/foo.md) citing [Source Title](../sources/bar.md).` Provenance traces to the original source, not just the synthesis layer. If a claim is supported by multiple sources, cite the strongest one; the others can be implied by the Arche page's own `sources:` list.
 4. **Flag gaps.** If the Arche doesn't fully answer the question, say what's missing and suggest a source to ingest. Do not guess past the Arche's coverage.
-5. **Architectural-gap signal.** If the question is framed for planning/design/scoping a feature ("how should we build X", "what's the right approach for Y", "design a Z") AND no relevant ARD/SAD/ADR concept page exists in the Arche, surface that gap explicitly: *"The Arche has no decision filed for this. Want to run `/arche-architect` to grill the design and file ARD/SAD/ADRs before planning starts?"* Suggest it; do not auto-invoke.
+5. **Architecture gap signal.** When the question is framed for building a feature and the design isn't settled in the Arche, surface that gap before any spec/plan/implementation work proceeds:
+   - If it's about **how to build / design** ("how should we build X", "what's the right approach for Y", "design a Z") AND no relevant ARD/SAD/ADR concept page exists, surface that gap: *"The Arche has no decision filed for this. Want to run `/arche-architect` to grill the design and file ARD/SAD/ADRs before building starts?"*
+   - Spec-writing, planning, and implementation themselves belong to your dev methodology's own skills (spec-kit, superpowers, your own) — this skill only **grounds** them. So when those skills run, feed them the surfaced decisions/constraints/research; don't reach for an Arche spec or plan artifact (there is none).
+   - Suggest; do not auto-invoke. Recommend the architecture gap first — a feature built on an undecided design is the costliest gap to leave open.
 6. **Offer to file the synthesis.** If the answer is non-trivial and reusable, ask: "Want me to file this as `queries/<slug>.md`?" Default: do not file unless asked or unless the question itself was framed as an Arche investigation.
 
 ## Filing a query back

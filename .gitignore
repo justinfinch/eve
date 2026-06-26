@@ -38,3 +38,6 @@ dist/
 build/
 *.tmp
 tmp/
+
+# Rust build output
+target/
