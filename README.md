@@ -92,7 +92,7 @@ Rather than reach for a generic microcontroller demo, I built directly on Adom's
 This repo's dev environment is managed by [devbox](https://www.jetify.com/devbox).
 From a clean checkout:
 
-1. Install devbox + direnv (see below), then `cd` into the repo (direnv auto-activates),
+1. Install [devbox](https://www.jetify.com/devbox) + [direnv](https://direnv.net), then `cd` into the repo (direnv auto-activates),
    or prefix commands with `devbox run --`.
 2. First build (installs the pinned toolchain + targets automatically):
 
