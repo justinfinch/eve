@@ -5,6 +5,14 @@ are new to most of the moving parts (Rust, embedded firmware, WebSockets, code
 generation, devbox) and explain *what* each piece is, *why* it's there, and *how
 to run it yourself*.
 
+There are **two tracks**:
+
+- **Software (Foundation)** — this page, lessons 0–8. The simulated molecule, the
+  contract, codegen, the web app, and how to run it all.
+- **[Hardware](hardware/README.md)** — the physical build: taking the parts you've
+  ordered and bringing up a real molecule, one rung at a time. Start there once
+  you've read the software track (or whenever your parts are about to arrive).
+
 > **The goal of this POC is learning, not shipping.** This Foundation slice is
 > deliberately small: a board (simulated, for now) says *who it is*, and a browser
 > shows it. Everything is wired so that as you add real capabilities later, the
@@ -35,6 +43,13 @@ has the same shape:
 | 6 | [The firmware — real embedded Rust](06-the-firmware.md) | Embassy, RP2350, `no_std`, the two-workspace split |
 | 7 | [The one-command spine (justfile)](07-the-spine.md) | `just build` / `check` / `dev` — how it all runs together |
 | 8 | [Running everything, end to end](08-running-everything.md) | A full hands-on session + troubleshooting |
+
+## The hardware track
+
+When you're ready to build the *real* molecule, continue to the
+**[Hardware lessons](hardware/README.md)** — your ordered parts, the day-one bring-up
+ritual, and the rung-by-rung build (LED → browser loop → CAN bus → ADC → PWM → AI).
+Its guiding rule: the deliverable is **hardware literacy, not a working rig**.
 
 ## The shortest possible start
 

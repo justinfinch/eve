@@ -59,7 +59,11 @@ check:
 dev:
     #!/usr/bin/env bash
     set -euo pipefail
+    # Free port 8765 if a previous run left an orphaned simulator behind
+    # (happens when `just dev` is force-killed instead of Ctrl-C'd, so its trap never fired).
+    lsof -ti tcp:8765 -sTCP:LISTEN | xargs kill 2>/dev/null || true
     cargo run -p simulator &
     SIM_PID=$!
-    trap "kill $SIM_PID 2>/dev/null || true" EXIT
+    # Clean up the simulator on interrupt/terminate/exit — not just a clean exit.
+    trap "kill $SIM_PID 2>/dev/null || true" INT TERM EXIT
     npm --prefix web run dev

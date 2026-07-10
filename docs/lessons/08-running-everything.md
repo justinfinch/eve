@@ -95,6 +95,7 @@ A few experiments to cement understanding (all reversible with `git checkout`):
 |---------|--------------|-----|
 | `command not found: just` (or `cargo`, `node`) | You're not in the devbox environment | Prefix with `devbox run --`, or run `devbox shell`, or install direnv ([Lesson 1](01-the-dev-environment.md)) |
 | First build hangs for a long time | `rustup` is downloading Rust 1.85.0 + targets | Normal on first run; let it finish |
+| `bind sim port: ... AddrInUse` on `just dev` | A prior `just dev` was force-killed (not `Ctrl-C`'d), leaving an orphaned simulator on port 8765 | `just dev` now auto-frees the port; or manually: `lsof -ti tcp:8765 -sTCP:LISTEN \| xargs kill`. Always stop `just dev` with a single `Ctrl-C` so its cleanup trap runs |
 | Browser shows `status: disconnected` | The simulator isn't running | Use `just dev` (runs both), or start `cargo run -p simulator` in another terminal |
 | Browser stuck on "waiting…" | Connected, but no frame yet, or wrong URL | Confirm the simulator printed `listening on ws://127.0.0.1:8765`; the app connects there |
 | WebSocket won't connect in the browser | Some browsers block `ws://` from `https://` pages | Use the plain `http://localhost:5173` URL Vite prints, in Chrome |
