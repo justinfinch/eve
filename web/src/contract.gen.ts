@@ -2,12 +2,40 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+ * A typed, self-describing capability descriptor — the ADR\'s registry.
+ * Internally tagged so the wire is self-describing: {\"kind\":\"gpio\",...}.
+ */
+export type Capability = { kind: "gpio"; channels: number; ops: string[] };
+
+/**
  * The molecule\'s self-description — the spine every later rung extends.
  */
 export interface SelfId {
     id: string;
     name: string;
     fw_version: string;
-    capabilities: string[];
+    capabilities: Capability[];
 }
+
+/**
+ * A command argument. Untagged: serializes as a bare JSON scalar.
+ * Deliberately a small closed enum (not serde_json::Value) to keep the
+ * embedded target no_std-clean and the heap small.
+ */
+export type Arg = boolean | number | string;
+
+/**
+ * Host -> Device command, addressed as (capability, channel, op, args).
+ */
+export interface Command {
+    capability: string;
+    channel: number;
+    op: string;
+    args: Arg[];
+}
+
+/**
+ * Device -> Host framed message. Internally tagged on \"type\".
+ */
+export type DeviceMsg = ({ type: "selfid" } & SelfId) | { type: "ack"; ok: boolean; error: string | null };
 
