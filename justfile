@@ -85,4 +85,9 @@ dev:
 # Run the host bridge against a real Pico (auto-detects the RP2350 serial port).
 # Override the port if auto-detect picks wrong: `just bridge --port /dev/tty.usbmodemXXXX`.
 bridge *ARGS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Ctrl-C is the normal way to stop the bridge — exit cleanly instead of letting
+    # `just` report "terminated by signal 2".
+    trap 'exit 0' INT
     cargo run -p bridge -- {{ARGS}}

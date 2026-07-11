@@ -8,10 +8,12 @@ use alloc::vec;
 use contract::{Capability, Command, DeviceMsg, SelfId};
 use embassy_executor::Spawner;
 use embassy_futures::join::join;
+use embassy_futures::select::{select, Either};
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Level, Output};
 use embassy_rp::peripherals::USB;
 use embassy_rp::usb::{Driver, InterruptHandler};
+use embassy_time::Timer;
 use embassy_usb::class::cdc_acm::{CdcAcmClass, State};
 use embassy_usb::driver::EndpointError;
 use embassy_usb::{Builder, Config};
@@ -55,6 +57,14 @@ async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
     let mut led = Output::new(p.PIN_15, Level::Low);
 
+    // Boot-blink: 3 quick flashes on GP15 so every (re)flash is visibly confirmed. The
+    // LED is otherwise idle until commanded, which once hid a stale-flash bug on the bench.
+    for _ in 0..6 {
+        led.toggle();
+        Timer::after_millis(80).await;
+    }
+    led.set_low();
+
     // --- USB CDC-ACM setup ---
     let driver = Driver::new(p.USB, Irqs);
 
@@ -84,58 +94,75 @@ async fn main(_spawner: Spawner) {
 
     let usb_fut = usb.run();
 
+    // Announce + serve commands forever. If the USB endpoint errors (host reset),
+    // loop and start a fresh comms cycle.
     let comms_fut = async {
         loop {
-            class.wait_connection().await;
-            let _ = session(&mut class, &mut led).await;
+            let _ = run_comms(&mut class, &mut led).await;
         }
     };
 
     join(usb_fut, comms_fut).await;
 }
 
-/// One connected session: announce, then serve commands until disconnect.
-async fn session<'d, D: embassy_usb::driver::Driver<'d>>(
+/// Serialize the SelfId and write it as one framed line.
+async fn announce<'d, D: embassy_usb::driver::Driver<'d>>(
+    class: &mut CdcAcmClass<'d, D>,
+) -> Result<(), EndpointError> {
+    let hello = serde_json::to_string(&DeviceMsg::SelfId(self_id())).unwrap();
+    write_line(class, &hello).await
+}
+
+/// Announce immediately, then serve commands while re-announcing on a 1s timer.
+///
+/// Why re-announce? The host bridge reopens the serial port on each browser connection,
+/// but the firmware can't see an OS-level port close, so a freshly-connected host would
+/// otherwise never receive a SelfId. The timer guarantees any listener sees us within 1s.
+/// DTR is deliberately NOT used as a gate — a raw serial host may never assert it.
+async fn run_comms<'d, D: embassy_usb::driver::Driver<'d>>(
     class: &mut CdcAcmClass<'d, D>,
     led: &mut Output<'static>,
 ) -> Result<(), EndpointError> {
-    // Announce ourselves.
-    let hello = serde_json::to_string(&DeviceMsg::SelfId(self_id())).unwrap();
-    write_line(class, &hello).await?;
-
     let caps = self_id().capabilities;
     let mut line: alloc::vec::Vec<u8> = alloc::vec::Vec::new();
     let mut packet = [0u8; 64];
 
-    loop {
-        let n = class.read_packet(&mut packet).await?;
-        line.extend_from_slice(&packet[..n]);
+    announce(class).await?;
 
-        // Process every complete '\n'-terminated command in the buffer.
-        while let Some(pos) = line.iter().position(|&b| b == b'\n') {
-            let raw: alloc::vec::Vec<u8> = line.drain(..=pos).collect();
-            let end = raw.len().saturating_sub(1);
-            let reply = match serde_json::from_slice::<Command>(&raw[..end]) {
-                Ok(cmd) => match contract::resolve_gpio_set(&caps, &cmd) {
-                    Ok(level) => {
-                        led.set_level(if level { Level::High } else { Level::Low });
-                        DeviceMsg::Ack {
-                            ok: true,
-                            error: None,
-                        }
-                    }
-                    Err(e) => DeviceMsg::Ack {
-                        ok: false,
-                        error: Some(e),
-                    },
-                },
-                Err(_) => DeviceMsg::Ack {
-                    ok: false,
-                    error: Some(String::from("invalid command json")),
-                },
-            };
-            let out = serde_json::to_string(&reply).unwrap();
-            write_line(class, &out).await?;
+    loop {
+        match select(class.read_packet(&mut packet), Timer::after_millis(1000)).await {
+            // A USB packet arrived — accumulate and process complete commands.
+            Either::First(res) => {
+                let n = res?;
+                line.extend_from_slice(&packet[..n]);
+                while let Some(pos) = line.iter().position(|&b| b == b'\n') {
+                    let raw: alloc::vec::Vec<u8> = line.drain(..=pos).collect();
+                    let end = raw.len().saturating_sub(1);
+                    let reply = match serde_json::from_slice::<Command>(&raw[..end]) {
+                        Ok(cmd) => match contract::resolve_gpio_set(&caps, &cmd) {
+                            Ok(level) => {
+                                led.set_level(if level { Level::High } else { Level::Low });
+                                DeviceMsg::Ack {
+                                    ok: true,
+                                    error: None,
+                                }
+                            }
+                            Err(e) => DeviceMsg::Ack {
+                                ok: false,
+                                error: Some(e),
+                            },
+                        },
+                        Err(_) => DeviceMsg::Ack {
+                            ok: false,
+                            error: Some(String::from("invalid command json")),
+                        },
+                    };
+                    let out = serde_json::to_string(&reply).unwrap();
+                    write_line(class, &out).await?;
+                }
+            }
+            // Timer fired — re-announce so late-connecting hosts see us.
+            Either::Second(()) => announce(class).await?,
         }
     }
 }

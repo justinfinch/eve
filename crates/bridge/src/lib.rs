@@ -3,7 +3,7 @@ pub mod relay;
 use futures_util::{SinkExt, StreamExt};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
-use tokio_serial::SerialPortBuilderExt;
+use tokio_serial::{SerialPort, SerialPortBuilderExt};
 use tokio_tungstenite::tungstenite::Message;
 
 use crate::relay::split_lines;
@@ -19,13 +19,17 @@ pub async fn run(ws_addr: &str, serial_path: &str, baud: u32) -> std::io::Result
             Ok(ws) => ws,
             Err(_) => continue,
         };
-        let port = match tokio_serial::new(serial_path, baud).open_native_async() {
+        let mut port = match tokio_serial::new(serial_path, baud).open_native_async() {
             Ok(p) => p,
             Err(e) => {
                 eprintln!("failed to open serial {serial_path}: {e}");
                 continue;
             }
         };
+        // Assert DTR/RTS in case a host-aware firmware gates on them. (Our firmware does
+        // NOT — it announces unconditionally — but this is harmless and helps other devices.)
+        let _ = port.write_data_terminal_ready(true);
+        let _ = port.write_request_to_send(true);
         relay_session(ws, port).await;
     }
 }
