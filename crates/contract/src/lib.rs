@@ -75,12 +75,13 @@ pub fn resolve_gpio_set(caps: &[Capability], cmd: &Command) -> Result<bool, Stri
     if cmd.capability != "gpio" {
         return Err(format!("unknown capability {:?}", cmd.capability));
     }
-    let (channels, ops) = caps
+    let gpio = caps
         .iter()
-        .find_map(|c| match c {
-            Capability::Gpio { channels, ops } => Some((*channels, ops)),
-        })
-        .ok_or_else(|| "gpio capability not advertised".to_string())?;
+        .find(|c| matches!(c, Capability::Gpio { .. }));
+    let Some(Capability::Gpio { channels, ops }) = gpio else {
+        return Err("gpio capability not advertised".to_string());
+    };
+    let channels = *channels;
     if cmd.channel >= channels {
         return Err(format!("channel {} out of range (0..{})", cmd.channel, channels));
     }
