@@ -81,3 +81,8 @@ dev:
     # Clean up the simulator on interrupt/terminate/exit — not just a clean exit.
     trap "kill $SIM_PID 2>/dev/null || true" INT TERM EXIT
     npm --prefix web run dev
+
+# Run the host bridge against a real Pico (auto-detects the RP2350 serial port).
+# Override the port if auto-detect picks wrong: `just bridge --port /dev/tty.usbmodemXXXX`.
+bridge *ARGS:
+    cargo run -p bridge -- {{ARGS}}
