@@ -55,6 +55,20 @@ check:
     npm --prefix web test
     echo "check passed"
 
+# Build the firmware and produce a flashable RP2350 UF2 at firmware/firmware.uf2.
+# Flash: hold BOOTSEL, plug in the Pico, then drop firmware/firmware.uf2 on the RP2350 drive.
+uf2:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd firmware                                              # CWD=firmware so .cargo/config.toml sets the thumbv8m (RP2350) target
+    cargo build
+    elf2uf2-rs target/thumbv8m.main-none-eabihf/debug/firmware firmware.uf2
+    python3 tools/uf2_set_family.py firmware.uf2             # elf2uf2-rs mis-tags RP2350 as RP2040; fix the family ID
+    echo ""
+    echo "Wrote firmware/firmware.uf2"
+    echo "Flash it: hold BOOTSEL, plug in the Pico, then drop this file on the RP2350 drive:"
+    echo "  $(pwd)/firmware.uf2"
+
 # Run the simulator and the web dev server together — the "see the id in the browser" scenario.
 dev:
     #!/usr/bin/env bash
