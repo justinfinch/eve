@@ -70,3 +70,7 @@ Append-only. Newest entries at the bottom. See [SCHEMA.md](SCHEMA.md) for entry 
 ## [2026-06-25] manual | Deleted retired spec page — spec-project-foundation
 - pages touched: index.md, concepts/sad-mini-molecule-poc.md
 - notes: deleted specs/spec-project-foundation.md (the lone legacy spec content page) at user request following the spec/plan retirement migration; removed its `## Specs` index entry and the SAD's `## See also` back-link (no broken links remain); removed the now-empty specs/ and plans/ directories. SAD `updated:` bumped.
+
+## [2026-07-10] architect | Phased control plane — v1 skipped, bridge built directly at Rung 1
+- pages touched: concepts/adr-phased-control-plane.md, index.md
+- notes: adr-phased-control-plane — recorded that Rung 1 (PR #4, branch hardware/rung-1-browser-bridge) consciously skipped v1 (Web Serial) and implemented v2 (Rust host bridge: browser⇄WebSocket⇄bridge⇄NDJSON-serial⇄firmware) directly — i.e. chose the "Rust host bridge from day 1" alternative the ADR had listed. Reasons: Adom hardware-behind-an-API fidelity (Lauer), unblocks Rung 2 CAN which Web Serial can't reach, lower friction for a software-dev learner, sim/device become symmetric peers. JSON stays on the wire; postcard-rpc still deferred. NOT a supersession — the ADR's contract-is-invariant thesis was validated on real RP2350 hardware (same SelfId/Command/Ack across sim and firmware); status stays `accepted` with v2 marked as the implemented topology.
