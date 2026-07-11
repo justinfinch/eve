@@ -11,6 +11,10 @@ contract = { path = "../crates/contract", default-features = false }
 embassy-executor = { version = "0.7", features = ["arch-cortex-m", "executor-thread"] }
 embassy-rp = { version = "0.4", features = ["rp235xa", "time-driver", "critical-section-impl"] }
 embassy-time = "0.4"
+embassy-usb = "0.4"
+embassy-futures = "0.1"
 cortex-m-rt = "0.7"
 panic-halt = "1"
 embedded-alloc = "0.6"
+serde_json = { version = "1", default-features = false, features = ["alloc"] }
+serde = { version = "1", default-features = false, features = ["derive", "alloc"] }

@@ -81,3 +81,15 @@ dev:
     # Clean up the simulator on interrupt/terminate/exit — not just a clean exit.
     trap "kill $SIM_PID 2>/dev/null || true" INT TERM EXIT
     npm --prefix web run dev
+
+# Run the host bridge against a real Pico (auto-detects the RP2350 serial port).
+# Override the port if auto-detect picks wrong: `just bridge --port /dev/tty.usbmodemXXXX`.
+bridge *ARGS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Build first, then exec the binary directly. Running under `cargo run` would leave
+    # cargo in the process tree, and cargo prints "error: interrupted by SIGINT" on Ctrl-C
+    # even when the child exits cleanly. `exec` replaces the shell with the bridge, whose
+    # own tokio::signal::ctrl_c handler makes Ctrl-C a clean exit.
+    cargo build -p bridge
+    exec target/debug/bridge {{ARGS}}
