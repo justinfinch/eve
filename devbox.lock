@@ -1,6 +1,54 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "elf2uf2-rs@latest": {
+      "last_modified": "2026-06-27T07:37:20Z",
+      "resolved": "github:NixOS/nixpkgs/3d46470bb3030020f7e1361f33514854f5bfa86d#elf2uf2-rs",
+      "source": "devbox-search",
+      "version": "2.2.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/2qw1kp8hgx8028nsdjh3hr9qmx8xs2c0-elf2uf2-rs-2.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/2qw1kp8hgx8028nsdjh3hr9qmx8xs2c0-elf2uf2-rs-2.2.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/bd5mph4j6x1yqfk7khbp81pqn7q3bclk-elf2uf2-rs-2.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/bd5mph4j6x1yqfk7khbp81pqn7q3bclk-elf2uf2-rs-2.2.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/lqhn78yp02gxfmw44dhlp15s26jzc60b-elf2uf2-rs-2.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/lqhn78yp02gxfmw44dhlp15s26jzc60b-elf2uf2-rs-2.2.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/3ggxanjixvgw8d1fw48k380w3wl4i8fz-elf2uf2-rs-2.2.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/3ggxanjixvgw8d1fw48k380w3wl4i8fz-elf2uf2-rs-2.2.0"
+        }
+      }
+    },
     "gh@latest": {
       "last_modified": "2026-06-11T10:33:09Z",
       "resolved": "github:NixOS/nixpkgs/8c91a71d13451abc40eb9dae8910f972f979852f#gh",

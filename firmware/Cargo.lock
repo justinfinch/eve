@@ -572,6 +572,7 @@ dependencies = [
  "cortex-m-rt",
  "embassy-executor",
  "embassy-rp",
+ "embassy-time",
  "embedded-alloc",
  "panic-halt",
 ]
