@@ -7,7 +7,14 @@ export type ParsedMsg =
 
 /** Route a raw WebSocket frame by its "type" tag. */
 export function parseDeviceMsg(raw: string): ParsedMsg {
-  const obj = JSON.parse(raw) as Record<string, unknown>;
+  // Serial frames are forwarded verbatim, so a non-JSON line (truncated UTF-8,
+  // line noise, a stray log line) can arrive. Never let it throw out of onmessage.
+  let obj: Record<string, unknown>;
+  try {
+    obj = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return { kind: "unknown" };
+  }
   if (obj.type === "selfid") {
     return { kind: "selfid", selfId: obj as unknown as SelfId };
   }
@@ -24,7 +31,10 @@ export function encodeSetGpio(channel: number, on: boolean): string {
 
 /** Derive the GPIO control descriptor from the announcement, if any. */
 export function gpioCapability(selfId: SelfId): { channels: number } | null {
-  for (const cap of selfId.capabilities as Array<Record<string, unknown>>) {
+  // A partial/older announce may omit `capabilities`; don't iterate a non-array.
+  const caps = selfId.capabilities;
+  if (!Array.isArray(caps)) return null;
+  for (const cap of caps as Array<Record<string, unknown>>) {
     if (cap.kind === "gpio") {
       return { channels: Number(cap.channels) };
     }

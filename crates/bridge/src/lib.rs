@@ -14,7 +14,15 @@ pub async fn run(ws_addr: &str, serial_path: &str, baud: u32) -> std::io::Result
     println!("bridge listening on ws://{ws_addr}, serial {serial_path} @ {baud}");
 
     loop {
-        let (stream, _peer) = listener.accept().await?;
+        // A transient accept error (EMFILE under load, per-connection ECONNABORTED)
+        // must not take down the whole bridge — log it and keep serving.
+        let (stream, _peer) = match listener.accept().await {
+            Ok(pair) => pair,
+            Err(e) => {
+                eprintln!("accept failed: {e}");
+                continue;
+            }
+        };
         let ws = match tokio_tungstenite::accept_async(stream).await {
             Ok(ws) => ws,
             Err(_) => continue,
@@ -54,6 +62,12 @@ async fn relay_session<S>(
                 buf.extend_from_slice(&chunk[..n]);
                 for line in split_lines(&mut buf) {
                     if ws_tx.send(Message::Text(line)).await.is_err() { return; }
+                }
+                // Cap any unterminated tail: a device streaming without a newline must
+                // not grow `buf` without bound. Mirrors the firmware cap (same
+                // contract::MAX_LINE) so both ends of the wire agree.
+                if buf.len() > contract::MAX_LINE {
+                    buf.clear();
                 }
             }
             // browser -> serial

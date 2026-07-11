@@ -67,6 +67,43 @@ pub enum DeviceMsg {
     Ack { ok: bool, error: Option<String> },
 }
 
+/// The canonical self-description every molecule advertises — the single home for
+/// id / name / fw_version and the GPIO capability. Firmware and simulator both call
+/// this so the real device and the simulator can never drift (FR-6). Bumping the
+/// firmware version or adding a channel/op happens here, once.
+pub fn default_self_id() -> SelfId {
+    SelfId {
+        id: "mol-001".into(),
+        name: "Mini-Molecule".into(),
+        fw_version: "0.1.0".into(),
+        capabilities: alloc::vec![Capability::Gpio {
+            channels: 1,
+            ops: alloc::vec!["set".into()],
+        }],
+    }
+}
+
+/// Longest partial (unterminated) line a byte-stream framer should buffer before
+/// assuming the peer is streaming garbage and discarding the tail. Commands are
+/// ~60 bytes; this is generous headroom while staying small enough to bound memory
+/// on the firmware's 8 KB heap. Firmware and the host bridge both frame the same
+/// serial stream with `take_line`, so they share this cap and can't silently diverge.
+pub const MAX_LINE: usize = 512;
+
+/// Drain the next complete `\n`-terminated line from `buf`, returning its bytes
+/// without the trailing newline (and a stray `\r`); leaves any partial tail in
+/// `buf`. Returns `None` when no complete line is buffered. `no_std`-clean so
+/// firmware and the host bridge frame the serial stream identically.
+pub fn take_line(buf: &mut Vec<u8>) -> Option<Vec<u8>> {
+    let pos = buf.iter().position(|&b| b == b'\n')?;
+    let mut line: Vec<u8> = buf.drain(..=pos).collect();
+    line.pop(); // drop the '\n'
+    if line.last() == Some(&b'\r') {
+        line.pop();
+    }
+    Some(line)
+}
+
 /// Validate a command against advertised capabilities and, on success,
 /// return the desired GPIO level. Shared by firmware and simulator so both
 /// enforce identical invariants (address only advertised capabilities,
@@ -100,15 +137,7 @@ mod tests {
     use alloc::vec;
 
     fn gpio_self_id() -> SelfId {
-        SelfId {
-            id: "mol-001".into(),
-            name: "Mini-Molecule".into(),
-            fw_version: "0.1.0".into(),
-            capabilities: vec![Capability::Gpio {
-                channels: 1,
-                ops: vec!["set".into()],
-            }],
-        }
+        default_self_id()
     }
 
     #[test]
@@ -171,6 +200,28 @@ mod tests {
             args: vec![Arg::Bool(true)],
         };
         assert!(resolve_gpio_set(&caps, &cmd).is_err());
+    }
+
+    #[test]
+    fn take_line_drains_complete_lines_and_keeps_the_tail() {
+        let mut buf = b"one\ntwo\npar".to_vec();
+        assert_eq!(take_line(&mut buf).as_deref(), Some(&b"one"[..]));
+        assert_eq!(take_line(&mut buf).as_deref(), Some(&b"two"[..]));
+        assert_eq!(take_line(&mut buf), None); // partial tail stays buffered
+        assert_eq!(buf, b"par");
+    }
+
+    #[test]
+    fn take_line_trims_trailing_cr() {
+        let mut buf = b"crlf\r\n".to_vec();
+        assert_eq!(take_line(&mut buf).as_deref(), Some(&b"crlf"[..]));
+        assert!(buf.is_empty());
+    }
+
+    #[test]
+    fn default_self_id_advertises_one_gpio_channel() {
+        let caps = default_self_id().capabilities;
+        assert_eq!(caps, vec![Capability::Gpio { channels: 1, ops: vec!["set".into()] }]);
     }
 
     #[test]

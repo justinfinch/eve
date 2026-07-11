@@ -17,6 +17,12 @@ describe("parseDeviceMsg", () => {
     const msg = parseDeviceMsg('{"type":"ack","ok":true,"error":null}');
     expect(msg).toEqual({ kind: "ack", ok: true, error: null });
   });
+
+  it("returns unknown for a non-JSON frame instead of throwing", () => {
+    // Serial lines are forwarded verbatim; garbage must not throw out of onmessage.
+    expect(() => parseDeviceMsg("not json <<")).not.toThrow();
+    expect(parseDeviceMsg("not json <<")).toEqual({ kind: "unknown" });
+  });
 });
 
 describe("encodeSetGpio", () => {
@@ -30,6 +36,12 @@ describe("encodeSetGpio", () => {
 describe("gpioCapability", () => {
   it("returns null when no gpio is advertised", () => {
     const selfId = { id: "x", name: "x", fw_version: "0", capabilities: [] };
+    expect(gpioCapability(selfId as never)).toBeNull();
+  });
+
+  it("returns null (no throw) when capabilities is absent", () => {
+    const selfId = { id: "x", name: "x", fw_version: "0" };
+    expect(() => gpioCapability(selfId as never)).not.toThrow();
     expect(gpioCapability(selfId as never)).toBeNull();
   });
 });

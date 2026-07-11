@@ -4,8 +4,8 @@
 extern crate alloc;
 
 use alloc::string::String;
-use alloc::vec;
-use contract::{Capability, Command, DeviceMsg, SelfId};
+use alloc::vec::Vec;
+use contract::{Command, DeviceMsg};
 use embassy_executor::Spawner;
 use embassy_futures::join::join;
 use embassy_futures::select::{select, Either};
@@ -31,18 +31,6 @@ pub static IMAGE_DEF: embassy_rp::block::ImageDef = embassy_rp::block::ImageDef:
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => InterruptHandler<USB>;
 });
-
-fn self_id() -> SelfId {
-    SelfId {
-        id: "mol-001".into(),
-        name: "Mini-Molecule".into(),
-        fw_version: "0.1.0".into(),
-        capabilities: vec![Capability::Gpio {
-            channels: 1,
-            ops: vec!["set".into()],
-        }],
-    }
-}
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
@@ -105,14 +93,6 @@ async fn main(_spawner: Spawner) {
     join(usb_fut, comms_fut).await;
 }
 
-/// Serialize the SelfId and write it as one framed line.
-async fn announce<'d, D: embassy_usb::driver::Driver<'d>>(
-    class: &mut CdcAcmClass<'d, D>,
-) -> Result<(), EndpointError> {
-    let hello = serde_json::to_string(&DeviceMsg::SelfId(self_id())).unwrap();
-    write_line(class, &hello).await
-}
-
 /// Announce immediately, then serve commands while re-announcing on a 1s timer.
 ///
 /// Why re-announce? The host bridge reopens the serial port on each browser connection,
@@ -123,11 +103,16 @@ async fn run_comms<'d, D: embassy_usb::driver::Driver<'d>>(
     class: &mut CdcAcmClass<'d, D>,
     led: &mut Output<'static>,
 ) -> Result<(), EndpointError> {
-    let caps = self_id().capabilities;
-    let mut line: alloc::vec::Vec<u8> = alloc::vec::Vec::new();
+    // Build the invariant announce line and capability list once per comms cycle.
+    // Both are constant for the device's life, so re-announcing on the timer reuses
+    // `hello` instead of rebuilding + re-serializing the SelfId every second.
+    let self_id = contract::default_self_id();
+    let hello = serde_json::to_string(&DeviceMsg::SelfId(self_id.clone())).unwrap();
+    let caps = self_id.capabilities;
+    let mut line: Vec<u8> = Vec::new();
     let mut packet = [0u8; 64];
 
-    announce(class).await?;
+    write_line(class, &hello).await?;
 
     loop {
         match select(class.read_packet(&mut packet), Timer::after_millis(1000)).await {
@@ -135,10 +120,8 @@ async fn run_comms<'d, D: embassy_usb::driver::Driver<'d>>(
             Either::First(res) => {
                 let n = res?;
                 line.extend_from_slice(&packet[..n]);
-                while let Some(pos) = line.iter().position(|&b| b == b'\n') {
-                    let raw: alloc::vec::Vec<u8> = line.drain(..=pos).collect();
-                    let end = raw.len().saturating_sub(1);
-                    let reply = match serde_json::from_slice::<Command>(&raw[..end]) {
+                while let Some(raw) = contract::take_line(&mut line) {
+                    let reply = match serde_json::from_slice::<Command>(&raw) {
                         Ok(cmd) => match contract::resolve_gpio_set(&caps, &cmd) {
                             Ok(level) => {
                                 led.set_level(if level { Level::High } else { Level::Low });
@@ -160,9 +143,14 @@ async fn run_comms<'d, D: embassy_usb::driver::Driver<'d>>(
                     let out = serde_json::to_string(&reply).unwrap();
                     write_line(class, &out).await?;
                 }
+                // Cap any unterminated tail: a host streaming without a newline must
+                // not grow `line` past the 8 KB heap and halt the device.
+                if line.len() > contract::MAX_LINE {
+                    line.clear();
+                }
             }
             // Timer fired — re-announce so late-connecting hosts see us.
-            Either::Second(()) => announce(class).await?,
+            Either::Second(()) => write_line(class, &hello).await?,
         }
     }
 }
@@ -172,7 +160,7 @@ async fn write_line<'d, D: embassy_usb::driver::Driver<'d>>(
     class: &mut CdcAcmClass<'d, D>,
     text: &str,
 ) -> Result<(), EndpointError> {
-    let mut bytes = alloc::vec::Vec::with_capacity(text.len() + 1);
+    let mut bytes = Vec::with_capacity(text.len() + 1);
     bytes.extend_from_slice(text.as_bytes());
     bytes.push(b'\n');
     for chunk in bytes.chunks(64) {

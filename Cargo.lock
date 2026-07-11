@@ -27,6 +27,7 @@ dependencies = [
 name = "bridge"
 version = "0.1.0"
 dependencies = [
+ "contract",
  "futures-util",
  "tokio",
  "tokio-serial",

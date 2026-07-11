@@ -1,19 +1,12 @@
-use contract::{Capability, Command, DeviceMsg, SelfId};
+use contract::{Command, DeviceMsg, SelfId};
 use futures_util::{SinkExt, StreamExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::tungstenite::Message;
 
-/// The canonical self-description this software molecule advertises.
+/// The canonical self-description this software molecule advertises — sourced from
+/// the contract crate so the simulator and the real firmware can't drift.
 pub fn self_id() -> SelfId {
-    SelfId {
-        id: "mol-001".into(),
-        name: "Mini-Molecule".into(),
-        fw_version: "0.1.0".into(),
-        capabilities: vec![Capability::Gpio {
-            channels: 1,
-            ops: vec!["set".into()],
-        }],
-    }
+    contract::default_self_id()
 }
 
 /// Accept WebSocket connections forever; each is a full peer session.
