@@ -87,7 +87,9 @@ dev:
 bridge *ARGS:
     #!/usr/bin/env bash
     set -euo pipefail
-    # Ctrl-C is the normal way to stop the bridge — exit cleanly instead of letting
-    # `just` report "terminated by signal 2".
-    trap 'exit 0' INT
-    cargo run -p bridge -- {{ARGS}}
+    # Build first, then exec the binary directly. Running under `cargo run` would leave
+    # cargo in the process tree, and cargo prints "error: interrupted by SIGINT" on Ctrl-C
+    # even when the child exits cleanly. `exec` replaces the shell with the bridge, whose
+    # own tokio::signal::ctrl_c handler makes Ctrl-C a clean exit.
+    cargo build -p bridge
+    exec target/debug/bridge {{ARGS}}

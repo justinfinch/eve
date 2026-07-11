@@ -17,7 +17,15 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    bridge::run(&ws, &port, baud).await
+    // Race the relay against Ctrl-C so SIGINT is a clean exit(0) — otherwise cargo/just
+    // report the child as "interrupted by SIGINT".
+    tokio::select! {
+        r = bridge::run(&ws, &port, baud) => r,
+        _ = tokio::signal::ctrl_c() => {
+            eprintln!("\nbridge: shutting down");
+            Ok(())
+        }
+    }
 }
 
 /// Best-effort auto-detect: first serial port whose USB vendor id is Raspberry Pi (0x2E8A).
