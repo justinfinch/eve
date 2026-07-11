@@ -30,5 +30,28 @@ by *both* the simulator and the firmware. Fake board and real board enforce iden
 same code. Only the success branch differs: the sim flips a boolean; the firmware drives 3.3V on a
 physical pin.
 
-**Result on the bench.** <fill in: did the real LED respond to the browser toggle? did the
-capability round-trip into the UI? what surprised me — enumeration, timing, a first-flash quirk?>
+**Result on the bench.** Works: clicking the browser button toggles the real LED on GP15, the
+`ok ✓` ack round-trips, and the LED control is rendered from the announced `gpio` capability.
+Getting there taught three things the happy path wouldn't have:
+
+1. **DTR is a trap for a raw-serial host.** The firmware first gated its announce behind
+   `CdcAcmClass::wait_connection()`, which waits for the host to raise **DTR** ("Data Terminal
+   Ready" — a serial control signal meaning "a program has opened this port"). The Rust bridge
+   opens the port but never asserts DTR at the device level, so the firmware waited forever and
+   never announced — even though the data path was wide open (USB bulk data doesn't need DTR).
+   Fix: announce unconditionally; don't depend on a control-line handshake.
+
+2. **A device with no liveness signal hides stale flashes.** Because the LED sat dark until
+   commanded, a reflash that silently *didn't take* looked identical to a code bug — I "fixed"
+   the firmware twice with no change, because the chip was still running old code. Adding a
+   3-blink **boot indicator** made every flash visibly confirmed and broke the confusion instantly.
+   Lesson: give the board a heartbeat so "is my new code even running?" is never a guess.
+
+3. **Framing is real — I watched a message arrive in pieces.** The 137-byte `SelfId` arrived at
+   the bridge as **64 + 64 + 9** bytes (64 = the USB max packet size), and the newline-framing
+   logic reassembled it into one clean line. On a raw byte stream you genuinely cannot assume one
+   read = one message.
+
+**Known rough edge:** the firmware re-announces every 1 s (a broadcast heartbeat) so a host that
+reopens the port always sees it. A cleaner design is a request/response identity query (host asks
+"who are you?" on connect); deferred as it adds a message type.
