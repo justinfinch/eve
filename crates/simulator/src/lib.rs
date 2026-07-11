@@ -1,5 +1,5 @@
-use contract::SelfId;
-use futures_util::SinkExt;
+use contract::{Capability, Command, DeviceMsg, SelfId};
+use futures_util::{SinkExt, StreamExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio_tungstenite::tungstenite::Message;
 
@@ -9,11 +9,14 @@ pub fn self_id() -> SelfId {
         id: "mol-001".into(),
         name: "Mini-Molecule".into(),
         fw_version: "0.1.0".into(),
-        capabilities: Vec::new(),
+        capabilities: vec![Capability::Gpio {
+            channels: 1,
+            ops: vec!["set".into()],
+        }],
     }
 }
 
-/// Accept WebSocket connections forever; emit one SelfId frame per connection.
+/// Accept WebSocket connections forever; each is a full peer session.
 pub async fn serve(listener: TcpListener) {
     while let Ok((stream, _peer)) = listener.accept().await {
         tokio::spawn(handle(stream));
@@ -25,6 +28,40 @@ async fn handle(stream: TcpStream) {
         Ok(ws) => ws,
         Err(_) => return,
     };
-    let json = serde_json::to_string(&self_id()).expect("SelfId serializes");
-    let _ = ws.send(Message::Text(json)).await;
+
+    // Announce ourselves.
+    let hello = serde_json::to_string(&DeviceMsg::SelfId(self_id())).expect("SelfId serializes");
+    if ws.send(Message::Text(hello)).await.is_err() {
+        return;
+    }
+
+    // Then act on commands, keeping an in-memory LED state.
+    let caps = self_id().capabilities;
+    let mut _led = false;
+    while let Some(Ok(msg)) = ws.next().await {
+        let Message::Text(txt) = msg else { continue };
+        let reply = match serde_json::from_str::<Command>(&txt) {
+            Ok(cmd) => match contract::resolve_gpio_set(&caps, &cmd) {
+                Ok(level) => {
+                    _led = level;
+                    DeviceMsg::Ack {
+                        ok: true,
+                        error: None,
+                    }
+                }
+                Err(e) => DeviceMsg::Ack {
+                    ok: false,
+                    error: Some(e),
+                },
+            },
+            Err(e) => DeviceMsg::Ack {
+                ok: false,
+                error: Some(e.to_string()),
+            },
+        };
+        let out = serde_json::to_string(&reply).expect("Ack serializes");
+        if ws.send(Message::Text(out)).await.is_err() {
+            break;
+        }
+    }
 }
